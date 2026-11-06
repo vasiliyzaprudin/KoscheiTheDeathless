@@ -1,6 +1,7 @@
 package com.mining.koscheithedeathless.service;
 
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -16,5 +17,9 @@ public class AppInfoService {
 
         return String.format("Приложение: KoscheiTheDeathless | Версия: %s | Разработчик: %s | Время сервера: %s",
                 APP_VERSION, DEVELOPER_NAME, currentTime);
+    }
+
+    public String getGreeting() {
+        return "Привет от коллеги! Этот код прошел ревью.";
     }
 }
