@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список пользователей</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f4f4f4; }
+        .btn { display: inline-block; padding: 8px 16px; background: #2a7ae2;
+            color: #fff; text-decoration: none; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; padding: 10px;
+            border-radius: 4px; margin-bottom: 15px; }
+        .empty { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<h1>Пользователи</h1>
+
+<!-- Сообщение об успехе (из flash-атрибута) -->
+<div class="success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+<a class="btn" th:href="@{/users/new}">+ Создать пользователя</a>
+
+<table th:if="${!users.isEmpty()}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Email</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.name}">Иван</td>
+        <td th:text="${user.email}">ivan@mail.ru</td>
+        <td><a th:href="@{/users/{id}(id=${user.id})}">Профиль</a></td>
+    </tr>
+    </tbody>
+</table>
+
+<p class="empty" th:if="${users.isEmpty()}">Пользователей пока нет. Создайте первого!</p>
+
+</body>
+</html>

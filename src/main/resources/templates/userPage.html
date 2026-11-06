@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${title}">Заголовок</title>
+</head>
+<body>
+<h1 th:text="${title}">Заголовок</h1>
+<p>ID: <span th:text="${user.id}">1</span></p>
+<p>Имя: <span th:text="${user.name}">Имя</span></p>
+<p>Email: <span th:text="${user.email}">Email</span></p>
+</body>
+</html>
