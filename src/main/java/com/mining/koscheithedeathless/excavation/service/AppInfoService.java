@@ -1,4 +1,4 @@
-package com.mining.koscheithedeathless.service;
+package com.mining.koscheithedeathless.excavation.service;
 
 import org.springframework.stereotype.Service;
 

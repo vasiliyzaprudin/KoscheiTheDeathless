@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Список пользователей</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
         th { background: #f4f4f4; }
@@ -13,13 +13,17 @@
         .success { background: #d4edda; color: #155724; padding: 10px;
             border-radius: 4px; margin-bottom: 15px; }
         .empty { color: #888; font-style: italic; }
+        .role-badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
+            font-size: 0.85em; font-weight: bold; }
+        .role-ADMIN { background: #f8d7da; color: #721c24; }
+        .role-ENGINEER { background: #d1ecf1; color: #0c5460; }
+        .role-VIEWER { background: #e2e3e5; color: #383d41; }
     </style>
 </head>
 <body>
 
 <h1>Пользователи</h1>
 
-<!-- Сообщение об успехе (из flash-атрибута) -->
 <div class="success" th:if="${successMessage}" th:text="${successMessage}"></div>
 
 <a class="btn" th:href="@{/users/new}">+ Создать пользователя</a>
@@ -30,7 +34,8 @@
         <th>ID</th>
         <th>Имя</th>
         <th>Email</th>
-        <th></th>
+        <th>Роль</th>
+        <th>Статус</th>
     </tr>
     </thead>
     <tbody>
@@ -38,7 +43,12 @@
         <td th:text="${user.id}">1</td>
         <td th:text="${user.name}">Иван</td>
         <td th:text="${user.email}">ivan@mail.ru</td>
-        <td><a th:href="@{/users/{id}(id=${user.id})}">Профиль</a></td>
+        <td>
+                <span class="role-badge"
+                      th:classappend="'role-' + ${user.role}"
+                      th:text="${user.role}">ADMIN</span>
+        </td>
+        <td th:text="${user.enabled} ? 'Активен' : 'Заблокирован'">Активен</td>
     </tr>
     </tbody>
 </table>

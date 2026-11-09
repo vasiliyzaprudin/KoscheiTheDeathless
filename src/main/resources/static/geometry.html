@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сечение выработки (Canvas)</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        form { margin-bottom: 20px; }
+        label { display: inline-block; width: 180px; }
+        canvas { border: 1px solid #ccc; margin-top: 20px; background: #fafafa; }
+        #info { color: #666; font-size: 0.9em; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<h2>Поперечное сечение горной выработки (клиентский рендеринг)</h2>
+
+<form id="params">
+    <div><label>Ширина, м:</label><input name="width" type="number" step="0.1" value="4.0"></div>
+    <div><label>Высота стенок, м:</label><input name="wallHeight" type="number" step="0.1" value="2.0"></div>
+    <button type="submit">Построить</button>
+</form>
+
+<canvas id="canvas" width="800" height="600"></canvas>
+<div id="info"></div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const info = document.getElementById('info');
+
+    document.getElementById('params').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const width = parseFloat(fd.get('width'));
+        const wallHeight = parseFloat(fd.get('wallHeight'));
+
+        // 1. Получаем JSON с примитивами
+        const url = `/api/drawing/geometry?width=${width}&wallHeight=${wallHeight}`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            info.textContent = 'Ошибка: ' + resp.status;
+            return;
+        }
+        const model = await resp.json();
+
+        // 2. Рисуем модель на canvas
+        drawModel(model);
+
+        info.textContent = `Примитивов: ${model.primitives.length}, ` +
+            `bounds: X[${model.bounds.minX}..${model.bounds.maxX}], ` +
+            `Y[${model.bounds.minY}..${model.bounds.maxY}]`;
+    });
+
+    function drawModel(model) {
+        // Очищаем canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 3. Вычисляем масштаб: вписываем bounds модели в размеры canvas (с отступами)
+        const padding = 40;
+        const cw = canvas.width - padding * 2;
+        const ch = canvas.height - padding * 2;
+
+        const modelW = model.bounds.maxX - model.bounds.minX;
+        const modelH = model.bounds.maxY - model.bounds.minY;
+
+        // Масштаб: min(cw/modelW, ch/modelH) — чтобы сохранить пропорции
+        const scale = Math.min(cw / modelW, ch / modelH);
+
+        // Смещение: центрируем модель на canvas
+        const offsetX = padding + (cw - modelW * scale) / 2 - model.bounds.minX * scale;
+        const offsetY = padding + (ch - modelH * scale) / 2 - model.bounds.minY * scale;
+
+        // Функция преобразования координат модели в пиксели canvas
+        // ВАЖНО: Y в canvas растет вниз, а в геометрии — вверх.
+        // Поэтому инвертируем Y: canvasY = offsetY + (canvas.height - ...)
+        // Проще: отразим Y относительно высоты canvas.
+        function toCanvas(p) {
+            return {
+                x: offsetX + p.x * scale,
+                // Инверсия Y: чем больше Y в модели, тем выше на canvas (меньше canvasY)
+                y: canvas.height - (offsetY + p.y * scale)
+            };
+        }
+
+        // 4. Рисуем каждый примитив
+        for (const prim of model.primitives) {
+            ctx.beginPath();
+            ctx.strokeStyle = prim.style.stroke || '#000';
+            ctx.lineWidth = prim.style.strokeWidth || 1;
+
+            if (prim.style.strokeDasharray) {
+                // "6,4" -> [6,4]
+                ctx.setLineDash(prim.style.strokeDasharray.split(',').map(Number));
+            } else {
+                ctx.setLineDash([]);
+            }
+
+            if (prim.start && prim.end) {
+                // Линия
+                const s = toCanvas(prim.start);
+                const e = toCanvas(prim.end);
+                ctx.moveTo(s.x, s.y);
+                ctx.lineTo(e.x, e.y);
+            } else if (prim.center && prim.radius !== undefined) {
+                // Дуга (например, свод)
+                const c = toCanvas(prim.center);
+                const r = prim.radius * scale;
+
+                // Углы в градусах -> радианы.
+                // В геометрии углы могут быть в другой системе; для простоты
+                // считаем, что startAngleDeg=0 — это вправо, и идем против часовой.
+                // В canvas arc() углы идут по часовой стрелке, 0 — вправо.
+                // Инверсия Y уже учтена в toCanvas, но дуга рисуется в canvas-координатах.
+                const startRad = (prim.startAngleDeg * Math.PI) / 180;
+                const endRad = (prim.endAngleDeg * Math.PI) / 180;
+
+                // Рисуем дугу. Для инверсии Y используем anticlockwise=true
+                // (в модели Y растет вверх, в canvas — вниз).
+                ctx.arc(c.x, c.y, r, -endRad, -startRad, false);
+            }
+
+            ctx.stroke();
+        }
+
+        // Сброс пунктира
+        ctx.setLineDash([]);
+    }
+</script>
+</body>
+</html>
