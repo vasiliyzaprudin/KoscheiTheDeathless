@@ -1,4 +1,4 @@
-package com.mining.koscheithedeathless.model.excavation;
+package com.mining.koscheithedeathless.excavation.model.excavation;
 
 public record Style(
         String stroke,

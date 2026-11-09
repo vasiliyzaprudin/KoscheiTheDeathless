@@ -1,6 +1,12 @@
-package com.mining.koscheithedeathless.service;
+package com.mining.koscheithedeathless.excavation.service;
 
-import com.mining.koscheithedeathless.model.excavation.*;
+import com.mining.koscheithedeathless.excavation.model.excavation.BoundingBox;
+import com.mining.koscheithedeathless.excavation.model.excavation.DrawingModel;
+import com.mining.koscheithedeathless.excavation.model.excavation.Style;
+import com.mining.koscheithedeathless.excavation.model.geometry.primitives.Arc;
+import com.mining.koscheithedeathless.excavation.model.geometry.primitives.Line;
+import com.mining.koscheithedeathless.excavation.model.geometry.primitives.Point;
+import com.mining.koscheithedeathless.excavation.model.geometry.primitives.Primitive;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

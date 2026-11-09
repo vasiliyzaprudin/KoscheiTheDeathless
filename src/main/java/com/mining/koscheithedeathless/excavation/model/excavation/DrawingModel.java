@@ -1,4 +1,6 @@
-package com.mining.koscheithedeathless.model.excavation;
+package com.mining.koscheithedeathless.excavation.model.excavation;
+
+import com.mining.koscheithedeathless.excavation.model.geometry.primitives.Primitive;
 
 import java.util.List;
 import java.util.Map;

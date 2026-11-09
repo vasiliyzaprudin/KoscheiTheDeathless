@@ -1,10 +1,10 @@
-package com.mining.koscheithedeathless.controller;
+package com.mining.koscheithedeathless.excavation.controller;
 
 import com.mining.koscheithedeathless.CrossSectionParams;
-import com.mining.koscheithedeathless.model.excavation.DrawingModel;
-import com.mining.koscheithedeathless.model.excavation.RenderOptions;
-import com.mining.koscheithedeathless.render.SvgRenderer;
-import com.mining.koscheithedeathless.service.CrossSectionService;
+import com.mining.koscheithedeathless.excavation.model.excavation.DrawingModel;
+import com.mining.koscheithedeathless.excavation.model.excavation.RenderOptions;
+import com.mining.koscheithedeathless.excavation.render.SvgRenderer;
+import com.mining.koscheithedeathless.excavation.service.CrossSectionService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
