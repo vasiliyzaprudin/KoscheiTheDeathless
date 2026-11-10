@@ -129,3 +129,19 @@ function setupZoom(svg, g) {
         g.setAttribute('transform', `translate(${currentTranslate.x}, ${currentTranslate.y}) scale(${currentScale})`);
     }, { passive: false });
 }
+
+export function getCurrentSvg() {
+    const svgElement = document.querySelector('#svg-container svg');
+    if (!svgElement) return null;
+
+    // Клонируем, чтобы убрать классы подсветки, если они есть
+    const clone = svgElement.cloneNode(true);
+    clone.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+
+    // Сбрасываем трансформации зума перед отправкой (чтобы в отчете был оригинальный вид)
+    const g = clone.querySelector('g');
+    if (g) g.removeAttribute('transform');
+
+    const serializer = new XMLSerializer();
+    return serializer.serializeToString(clone);
+}

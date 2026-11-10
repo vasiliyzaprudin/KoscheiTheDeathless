@@ -19,6 +19,17 @@
 
     <div style="margin-bottom: 15px;">
         <button type="button" id="btn-export-png">Скачать PNG</button>
+        <div style="margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px;">
+            <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                Описание процесса возведения крепи:
+            </label>
+            <textarea id="description" rows="5" style="width: 100%; box-sizing: border-box; resize: vertical;"
+                      placeholder="Введите текст описания..."></textarea>
+
+            <button type="button" id="btn-generate-pdf" style="margin-top: 10px; background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                Сформировать отчет (PDF)
+            </button>
+        </div>
         <button type="button" id="btn-reset-zoom">Сбросить зум</button>
     </div>
 
@@ -26,7 +37,7 @@
 </div>
 
 <div class="right-panel">
-    <div class="info-title">Информация об элементе</div>
+    <div class="info-title">Информация</div>
     <div id="element-info">
         <p style="color: #888; font-style: italic;">Кликните на любой элемент чертежа...</p>
     </div>
