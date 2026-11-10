@@ -1,0 +1,48 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+.left-panel { flex: 1; }
+.right-panel {
+    width: 300px;
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    height: fit-content;
+}
+
+form { margin-bottom: 20px; }
+label { display: inline-block; width: 180px; }
+
+#svg-container {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    display: inline-block;
+    cursor: default;
+}
+
+/* Интерактивность SVG */
+#svg-container line,
+#svg-container path {
+    cursor: pointer;
+    transition: stroke 0.2s, stroke-width 0.2s;
+}
+
+.highlight {
+    stroke: #54aa47 !important;
+    stroke-width: 5 !important;
+}
+
+/* Стили для панели информации */
+.info-title {
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+.info-row { margin-bottom: 5px; font-size: 0.9em; }
+.info-label { color: #666; display: inline-block; width: 100px; }
+.info-value { font-weight: bold; }

@@ -2,40 +2,38 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Сечение выработки</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        form { margin-bottom: 20px; }
-        label { display: inline-block; width: 180px; }
-        #drawing { border: 1px solid #ccc; display: inline-block; margin-top: 20px; }
-    </style>
+    <title>Сечение выработки (Модульный JS)</title>
+    <!-- Подключаем CSS -->
+    <link rel="stylesheet" href="/css/drawing.css">
 </head>
 <body>
-<h2>Поперечное сечение горной выработки</h2>
 
-<form id="params">
-    <div><label>Ширина, м:</label><input name="width" type="number" step="0.1" value="4.0"></div>
-    <div><label>Высота стенок, м:</label><input name="wallHeight" type="number" step="0.1" value="2.0"></div>
-    <button type="submit">Построить</button>
-</form>
+<div class="left-panel">
+    <h2>Поперечное сечение (клик по элементу)</h2>
 
-<div id="drawing"></div>
+    <form id="params">
+        <div><label>Ширина, м:</label><input name="width" type="number" step="0.1" value="4.0"></div>
+        <div><label>Высота стенок, м:</label><input name="wallHeight" type="number" step="0.1" value="2.0"></div>
+        <button type="submit">Построить</button>
+    </form>
 
-<script>
-    document.getElementById('params').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const body = {
-            width: parseFloat(fd.get('width')),
-            wallHeight: parseFloat(fd.get('wallHeight'))
-        };
-        const resp = await fetch('/api/drawing/svg', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        document.getElementById('drawing').innerHTML = await resp.text();
-    });
-</script>
+    <div style="margin-bottom: 15px;">
+        <button type="button" id="btn-export-png">Скачать PNG</button>
+        <button type="button" id="btn-reset-zoom">Сбросить зум</button>
+    </div>
+
+    <div id="svg-container"></div>
+</div>
+
+<div class="right-panel">
+    <div class="info-title">Информация об элементе</div>
+    <div id="element-info">
+        <p style="color: #888; font-style: italic;">Кликните на любой элемент чертежа...</p>
+    </div>
+</div>
+
+<!-- Подключаем JS как модуль -->
+<script type="module" src="/js/main.js"></script>
+
 </body>
 </html>
