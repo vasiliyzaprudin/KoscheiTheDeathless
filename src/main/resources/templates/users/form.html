@@ -7,60 +7,85 @@
         body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select {
-            width: 100%; padding: 8px; box-sizing: border-box;
-            border: 1px solid #ccc; border-radius: 4px;
-        }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         .error { color: #c00; font-size: 0.9em; margin-top: 4px; }
         .has-error input, .has-error select { border-color: #c00; }
-        button { padding: 10px 20px; background: #2a7ae2; color: #fff;
-            border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #1a5cb0; }
+        button { padding: 10px 20px; background: #2a7ae2; color: #fff; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px;}
+        .back-link { display: block; margin-top: 15px; text-align: center; text-decoration: none; color: #2a7ae2;}
     </style>
 </head>
 <body>
-
+<!-- Данный листинг служит представлением для функции добовления пользователя админом -->
 <h1>Создать пользователя</h1>
 
 <form th:action="@{/users}" th:object="${userForm}" method="post">
 
-    <!-- Имя -->
+    <!-- ЛОГИН -->
+    <div class="form-group" th:classappend="${#fields.hasErrors('username')} ? 'has-error'">
+        <label for="username">Логин:</label>
+        <input type="text" id="username" th:field="*{username}" placeholder="ivanov_ii"/>
+        <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+    </div>
+
+    <!-- ФАМИЛИЯ -->
+    <div class="form-group" th:classappend="${#fields.hasErrors('Familiya')} ? 'has-error'">
+        <label for="Familiya">Фамилия:</label>
+        <input type="text" id="Familiya" th:field="*{familiya}" placeholder="Иванов"/>
+        <div class="error" th:if="${#fields.hasErrors('Familiya')}" th:errors="*{familiya}"></div>
+    </div>
+
+    <!-- ИМЯ -->
     <div class="form-group" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
         <label for="name">Имя:</label>
         <input type="text" id="name" th:field="*{name}" placeholder="Иван"/>
         <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
     </div>
 
-    <!-- Email -->
+    <!-- ОТЧЕСТВО -->
+    <div class="form-group" th:classappend="${#fields.hasErrors('otchestvo')} ? 'has-error'">
+        <label for="otchestvo">Отчество:</label>
+        <input type="text" id="otchestvo" th:field="*{otchestvo}" placeholder="Иванович"/>
+        <div class="error" th:if="${#fields.hasErrors('otchestvo')}" th:errors="*{otchestvo}"></div>
+    </div>
+
+    <!-- EMAIL -->
     <div class="form-group" th:classappend="${#fields.hasErrors('email')} ? 'has-error'">
         <label for="email">Email:</label>
         <input type="email" id="email" th:field="*{email}" placeholder="ivan@mail.ru"/>
         <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
     </div>
 
-    <!-- Пароль -->
+    <!-- ПАРОЛЬ -->
     <div class="form-group" th:classappend="${#fields.hasErrors('password')} ? 'has-error'">
         <label for="password">Пароль:</label>
         <input type="password" id="password" th:field="*{password}" placeholder="Минимум 6 символов"/>
         <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
     </div>
 
-    <!-- Роль -->
-    <div class="form-group" th:classappend="${#fields.hasErrors('role')} ? 'has-error'">
-        <label for="role">Роль:</label>
-        <select id="role" th:field="*{role}">
-            <option value="">— Выберите роль —</option>
-            <option th:each="r : ${roles}"
-                    th:value="${r}"
-                    th:text="${r}">ADMIN</option>
+    <!-- РОЛЬ -->
+    <div class="form-group" th:classappend="${#fields.hasErrors('roleId')} ? 'has-error'">
+        <label for="role">Должность:</label>
+        <select id="role" th:field="*{roleId}">
+            <option value="">— Выберите должность —</option>
+            <option th:each="r : ${roles}" th:value="${r.id}" th:text="${r.title}">Роль</option>
         </select>
-        <div class="error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+        <div class="error" th:if="${#fields.hasErrors('roleId')}" th:errors="*{roleId}"></div>
+    </div>
+
+    <!-- РУДНИК -->
+    <div class="form-group" th:classappend="${#fields.hasErrors('mineId')} ? 'has-error'">
+        <label for="mineId">Организация (Рудник):</label>
+        <select id="mineId" th:field="*{mineId}">
+            <option value="">-- Управляющая компания (Холдинг) --</option>
+            <option th:each="m : ${mines}" th:value="${m.id}" th:text="${m.name}"></option>
+        </select>
+        <div class="error" th:if="${#fields.hasErrors('mineId')}" th:errors="*{mineId}"></div>
     </div>
 
     <button type="submit">Сохранить</button>
 </form>
 
-<a th:href="@{/users}">← Назад к списку</a>
+<a th:href="@{/users}" class="back-link">← Назад к списку</a>
 
 </body>
 </html>

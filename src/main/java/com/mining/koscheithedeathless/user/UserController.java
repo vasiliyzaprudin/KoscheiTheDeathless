@@ -1,8 +1,8 @@
-package com.mining.koscheithedeathless.user.controller;
+package com.mining.koscheithedeathless.user;
 
 import com.mining.koscheithedeathless.user.dto.CreateUserRequest;
+import com.mining.koscheithedeathless.user.dto.UpdateUserRequest;
 import com.mining.koscheithedeathless.user.dto.UserResponse;
-import com.mining.koscheithedeathless.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,5 +39,16 @@ public class UserController {
 
         // Возвращаем 201 Created
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

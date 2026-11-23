@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f8f9fa; }
+        .header { background: #2a7ae2; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn { display: inline-block; padding: 10px 20px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;}
+    </style>
+</head>
+<body>
+
+<!-- Шапка -->
+<div class="header">
+    <h1>Добро пожаловать, <span th:text="${user.familiya} + ' ' + ${user.name}"></span>!</h1>
+    <p>Ваша должность: <span th:text="${user.roles[0].title}"></span></p>
+
+    <!-- Отображение для сотрудников РУДНИКА -->
+    <div th:if="${!isHolding}">
+        <p>Вы работаете на руднике: <b><span th:text="${mine.name}"></span></b> (Код: <span th:text="${mine.code}"></span>)</p>
+    </div>
+
+    <!-- Отображение для сотрудников УК -->
+    <div th:if="${isHolding}">
+        <p><b>Вы сотрудник Управляющей компании (Холдинга)</b></p>
+        <p>Вам доступен просмотр данных всех рудников.</p>
+    </div>
+</div>
+
+<!-- Меню для сотрудников рудника -->
+<div class="card" th:if="${!isHolding}">
+    <h2>Операции вашего рудника</h2>
+    <div class="grid">
+        <div>
+            <h3>Документы проходки</h3>
+            <p>Создание и просмотр документов по вашему руднику.</p>
+            <a href="#" class="btn">Перейти к документам</a>
+        </div>
+        <div>
+            <h3>Учет материалов</h3>
+            <p>Учет материальных средств (в разработке).</p>
+            <a href="#" class="btn" style="background: #6c757d;">В разработке</a>
+        </div>
+    </div>
+</div>
+
+<!-- Меню для сотрудников УК -->
+<div class="card" th:if="${isHolding}">
+    <h2>Инструменты Управляющей Компании</h2>
+    <div class="grid">
+        <div>
+            <h3>Аналитика по всем рудникам</h3>
+            <p>Сводные отчеты по добыче, проходке и потерям.</p>
+            <a href="#" class="btn" style="background: #17a2b8;">Открыть аналитику</a>
+        </div>
+        <div>
+            <h3>Справочник рудников</h3>
+            <p>Просмотр списка всех рудников холдинга.</p>
+            <a href="#" class="btn" style="background: #17a2b8;">Список рудников</a>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 20px;">
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Выйти из системы</button>
+    </form>
+</div>
+
+</body>
+</html>

@@ -4,20 +4,27 @@
     <meta charset="UTF-8">
     <title>Список пользователей</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; }
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
         th { background: #f4f4f4; }
         .btn { display: inline-block; padding: 8px 16px; background: #2a7ae2;
-            color: #fff; text-decoration: none; border-radius: 4px; }
+            color: #fff; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; font-size: 14px;}
+        .btn-danger { background: #dc3545; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
         .success { background: #d4edda; color: #155724; padding: 10px;
             border-radius: 4px; margin-bottom: 15px; }
         .empty { color: #888; font-style: italic; }
         .role-badge { display: inline-block; padding: 2px 8px; border-radius: 12px;
-            font-size: 0.85em; font-weight: bold; }
+            font-size: 0.85em; font-weight: bold; margin-bottom: 2px;}
+        .role-TUNNELER { background: #d1ecf1; color: #0c5460; }
+        .role-SURVEYOR { background: #fff3cd; color: #856404; }
+        .role-GEOLOGIST { background: #d4edda; color: #155724; }
+        .role-MINE_MANAGER { background: #e2e3e5; color: #383d41; }
+        .role-HOLDING_ANALYST { background: #cce5ff; color: #004085; }
         .role-ADMIN { background: #f8d7da; color: #721c24; }
-        .role-ENGINEER { background: #d1ecf1; color: #0c5460; }
         .role-VIEWER { background: #e2e3e5; color: #383d41; }
+        .role-ENGINEER { background: #d1ecf1; color: #0c5460; }
     </style>
 </head>
 <body>
@@ -28,27 +35,50 @@
 
 <a class="btn" th:href="@{/users/new}">+ Создать пользователя</a>
 
+<a href="/admin/mines">Управление рудниками</a>
+
 <table th:if="${!users.isEmpty()}">
     <thead>
     <tr>
         <th>ID</th>
-        <th>Имя</th>
+        <th>Логин</th>
+        <th>ФИО</th>
         <th>Email</th>
+        <th>Организация</th>
         <th>Роль</th>
         <th>Статус</th>
+        <th>Действия</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="user : ${users}">
         <td th:text="${user.id}">1</td>
-        <td th:text="${user.name}">Иван</td>
-        <td th:text="${user.email}">ivan@mail.ru</td>
+        <td th:text="${user.username}">ivanov_ii</td>
         <td>
-                <span class="role-badge"
-                      th:classappend="'role-' + ${user.role}"
-                      th:text="${user.role}">ADMIN</span>
+            <!-- Собираем ФИО в одну строку -->
+            <span th:text="${user.familiya} + ' ' + ${user.name} + (${user.otchestvo} != null ? ' ' + ${user.otchestvo} : '')">Иванов Иван Иванович</span>
         </td>
-        <td th:text="${user.enabled} ? 'Активен' : 'Заблокирован'">Активен</td>
+        <td th:text="${user.email}">ivan@mail.ru</td>
+        <td th:text="${user.mineName}">Рудник "Северный"</td>
+        <td>
+            <!-- Выводим бейджи для всех ролей пользователя -->
+            <div th:each="roleTitle : ${user.roleTitles}" style="margin-bottom: 2px;">
+                <span class="role-badge" th:text="${roleTitle}">Роль</span>
+            </div>
+        </td>
+        <td>
+            <span th:if="${user.enabled}" style="color: green; font-weight: bold;">Активен</span>
+            <span th:if="${!user.enabled}" style="color: red; font-weight: bold;">Заблокирован</span>
+        </td>
+        <td>
+            <!-- Кнопки действий -->
+            <a th:href="@{/users/{id}/edit(id=${user.id})}" class="btn btn-sm">✏️ Ред.</a>
+
+            <!-- Форма для удаления (через POST, так как удаление меняет данные) -->
+            <form th:action="@{/users/{id}/delete(id=${user.id})}" method="post" style="display: inline-block;">
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Вы уверены, что хотите заблокировать этого пользователя?');">🗑️ Удал.</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

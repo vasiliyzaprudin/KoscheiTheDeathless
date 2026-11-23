@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать пользователя</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .error { color: #c00; font-size: 0.9em; margin-top: 4px; }
+        button { padding: 10px 20px; background: #2a7ae2; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<h1>Редактировать: <span th:text="${userForm.username} + ' ' + ${userForm.name}"></span></h1>
+
+<!-- ВАЖНО: action ведет на /users/{id}/edit с методом POST -->
+<form th:action="@{/users/{id}/edit(id=${userId})}" th:object="${userForm}" method="post">
+
+    <div class="form-group" th:classappend="${#fields.hasErrors('username')} ? 'has-error'">
+        <label for="username">Логин:</label>
+        <input type="text" id="username" th:field="*{username}"/>
+        <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+    </div>
+
+    <div class="form-group" th:classappend="${#fields.hasErrors('familiya')} ? 'has-error'">
+        <label for="familiya">Фамилия:</label>
+        <input type="text" id="familiya" th:field="*{familiya}"/>
+        <div class="error" th:if="${#fields.hasErrors('familiya')}" th:errors="*{familiya}"></div>
+    </div>
+
+    <div class="form-group" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
+        <label for="name">Имя:</label>
+        <input type="text" id="name" th:field="*{name}"/>
+        <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+    </div>
+
+    <div class="form-group" th:classappend="${#fields.hasErrors('otchestvo')} ? 'has-error'">
+        <label for="otchestvo">Отчество:</label>
+        <input type="text" id="otchestvo" th:field="*{otchestvo}"/>
+        <div class="error" th:if="${#fields.hasErrors('otchestvo')}" th:errors="*{otchestvo}"></div>
+    </div>
+
+    <!-- EMAIL -->
+    <div class="form-group" th:classappend="${#fields.hasErrors('email')} ? 'has-error'">
+        <label for="email">Email:</label>
+        <input type="email" id="email" th:field="*{email}"/>
+        <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+    </div>
+
+    <div class="form-group">
+        <label for="role">Должность:</label>
+        <select id="role" th:field="*{roleId}">
+            <option value="">— Выберите должность —</option>
+            <option th:each="r : ${roles}" th:value="${r.id}" th:text="${r.title}">Роль</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="mineId">Организация (Рудник):</label>
+        <select id="mineId" th:field="*{mineId}">
+            <option value="">-- Управляющая компания (Холдинг) --</option>
+            <option th:each="m : ${mines}" th:value="${m.id}" th:text="${m.name}"></option>
+        </select>
+    </div>
+
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<div style="margin-top: 15px;">
+    <a th:href="@{/users}" style="color: #2a7ae2; text-decoration: none;">← Назад к списку</a>
+</div>
+
+</body>
+</html>
