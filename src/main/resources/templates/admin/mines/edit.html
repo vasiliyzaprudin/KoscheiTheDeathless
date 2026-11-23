@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать рудник</title>
+    <!-- стили как в form.html -->
+</head>
+<body>
+
+<h1>Редактировать рудник</h1>
+
+<form th:action="@{/admin/mines/{id}/edit(id=${mineId})}" th:object="${mineForm}" method="post">
+    <div class="form-group">
+        <label for="code">Код:</label>
+        <input type="text" id="code" th:field="*{code}" required>
+    </div>
+    <div class="form-group">
+        <label for="name">Название:</label>
+        <input type="text" id="name" th:field="*{name}" required>
+    </div>
+    <div class="form-group">
+        <label for="address">Адрес:</label>
+        <input type="text" id="address" th:field="*{address}">
+    </div>
+    <div class="form-group">
+        <label for="description">Описание:</label>
+        <textarea id="description" th:field="*{description}" rows="4"></textarea>
+    </div>
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<a th:href="@{/admin/mines}">← Назад к списку</a>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 package com.mining.koscheithedeathless.user.dto;
 
-import com.mining.koscheithedeathless.user.model.User;
+import com.mining.koscheithedeathless.user.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,9 +10,21 @@ import lombok.Data;
 @Data // Lombok: геттеры, сеттеры, toString
 public class CreateUserRequest {
 
+    @NotBlank(message = "Логин не может быть пустым")
+    @Size(min = 3, max = 50, message = "Логин должен быть от 3 до 50 символов")
+    private String username;
+
+    @NotBlank(message = "Фамилия не может быть пустой")
+    @Size(min = 2, max = 100)
+    private String familiya;
+
     @NotBlank(message = "Имя не может быть пустым")
     @Size(min = 2, max = 100)
     private String name;
+
+    @NotBlank(message = "Вы живете в стране где уважают Отца")
+    @Size(min = 2, max = 100)
+    private String otchestvo;
 
     @NotBlank(message = "Email не может быть пустым")
     @Email(message = "Некорректный формат email")
@@ -23,5 +35,7 @@ public class CreateUserRequest {
     private String password;
 
     @NotNull(message = "Выберите роль")
-    private User.Role role;
+    private Long roleId;
+
+    private Long mineId;
 }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление рудниками</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f4f4f4; }
+        .btn { display: inline-block; padding: 8px 16px; background: #2a7ae2; color: #fff; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; font-size: 14px;}
+        .btn-warning { background: #f0ad4e; }
+        .btn-danger { background: #dc3545; }
+        .btn-success { background: #28a745; }
+    </style>
+</head>
+<body>
+
+<h1>Рудники</h1>
+
+<a class="btn" th:href="@{/admin/mines/new}">+ Добавить рудник</a>
+<a class="btn" th:href="@{/users}" style="background: #6c757d;">← Назад к пользователям</a>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Код</th>
+        <th>Название</th>
+        <th>Адрес</th>
+        <th>Описание</th>
+        <th>Статус</th> <!-- НОВАЯ КОЛОНКА -->
+        <th>Действия</th> <!-- НОВАЯ КОЛОНКА -->
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="mine : ${mines}">
+        <td th:text="${mine.id}">1</td>
+        <td th:text="${mine.code}">MINE-01</td>
+        <td th:text="${mine.name}">Северный</td>
+        <td th:text="${mine.address}">г. Магнитогорск</td>
+        <td th:text="${mine.description}">Железорудный</td>
+
+        <!-- НОВАЯ ЯЧЕЙКА СТАТУСА -->
+        <td>
+            <span th:if="${mine.enabled}" style="color: green; font-weight: bold;">Активен</span>
+            <span th:if="${!mine.enabled}" style="color: red; font-weight: bold;">Заблокирован</span>
+        </td>
+
+        <!-- НОВАЯ ЯЧЕЙКА С КНОПКАМИ -->
+        <td>
+            <a th:href="@{/admin/mines/{id}/edit(id=${mine.id})}" class="btn btn-warning" style="padding: 4px 8px;">✏️ Ред.</a>
+
+            <!-- Форма для блокировки/разблокировки -->
+            <form th:action="@{/admin/mines/{id}/toggle(id=${mine.id})}" method="post" style="display:inline;">
+                <button type="submit" class="btn"
+                        th:classappend="${mine.enabled} ? 'btn-danger' : 'btn-success'"
+                        style="padding: 4px 8px;"
+                        th:text="${mine.enabled} ? '🚫 Блок.' : '✅ Акт.'">
+                </button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
