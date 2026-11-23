@@ -25,7 +25,6 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
-        // Пока используем базовую обработку, позже заменим на GlobalExceptionHandler
         try {
             return ResponseEntity.ok(userService.getUserById(id));
         } catch (RuntimeException e) {
@@ -36,8 +35,6 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         UserResponse createdUser = userService.createUser(request);
-
-        // Возвращаем 201 Created
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 

@@ -8,14 +8,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@RequiredArgsConstructor // <-- Lombok создаст конструктор для CurrentUserService
+@RequiredArgsConstructor
 public class DashboardController {
 
     private final CurrentUserService currentUserService;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        // Вот вся магия! Одна строчка — и у нас готовый пользователь.
         User currentUser = currentUserService.getCurrentUser();
 
         model.addAttribute("user", currentUser);
