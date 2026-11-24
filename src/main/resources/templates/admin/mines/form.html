@@ -16,28 +16,27 @@
 
 <h1>Добавить рудник</h1>
 
-
 <form th:action="@{/admin/mines}" th:object="${mineForm}" method="post">
     <div class="form-group">
         <label for="code">Код рудника:</label>
-        <input type="text" id="code" th:field="*{code}" placeholder="MINE-01" required>
-        <div class="error" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></div>
+        <input type="text" id="code" th:field="*{mine_code}" placeholder="MINE-01" required>
+        <div class="error" th:if="${#fields.hasErrors('mine_code')}" th:errors="*{mine_code}"></div>
     </div>
 
     <div class="form-group">
         <label for="name">Название:</label>
-        <input type="text" id="name" th:field="*{name}" placeholder="Рудник Северный" required>
-        <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        <input type="text" id="name" th:field="*{mine_name}" placeholder="Рудник Северный" required>
+        <div class="error" th:if="${#fields.hasErrors('mine_name')}" th:errors="*{mine_name}"></div>
     </div>
 
     <div class="form-group">
         <label for="address">Адрес:</label>
-        <input type="text" id="address" th:field="*{address}" placeholder="Область, город">
+        <input type="text" id="address" th:field="*{mine_address}" placeholder="Область, город">
     </div>
 
     <div class="form-group">
         <label for="description">Описание:</label>
-        <textarea id="description" th:field="*{description}" rows="4" placeholder="Медно-цинковый рудник"></textarea>
+        <textarea id="description" th:field="*{mine_description}" rows="4" placeholder="Медно-цинковый рудник"></textarea>
     </div>
 
     <button type="submit">Сохранить</button>

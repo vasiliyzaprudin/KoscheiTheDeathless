@@ -16,7 +16,6 @@
 
 <h1>Редактировать: <span th:text="${userForm.username} + ' ' + ${userForm.name}"></span></h1>
 
-<!-- ВАЖНО: action ведет на /users/{id}/edit с методом POST -->
 <form th:action="@{/users/{id}/edit(id=${userId})}" th:object="${userForm}" method="post">
 
     <div class="form-group" th:classappend="${#fields.hasErrors('username')} ? 'has-error'">
@@ -62,7 +61,10 @@
         <label for="mineId">Организация (Рудник):</label>
         <select id="mineId" th:field="*{mineId}">
             <option value="">-- Управляющая компания (Холдинг) --</option>
-            <option th:each="m : ${mines}" th:value="${m.id}" th:text="${m.name}"></option>
+            <option th:each="m : ${mines}"
+                    th:value="${m.mine_id}"
+                    th:text="${m.mine_name}">
+            </option>
         </select>
     </div>
 
