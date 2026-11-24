@@ -49,7 +49,7 @@ public class UserViewController {
         req.setName(user.getName());
         req.setOtchestvo(user.getOtchestvo());
         if (!user.getRoles().isEmpty()) req.setRoleId(user.getRoles().iterator().next().getId());
-        if (user.getMine() != null) req.setMineId(user.getMine().getId());
+        if (user.getMine() != null) req.setMineId(user.getMine().getMine_id());
 
         model.addAttribute("userForm", req);
         model.addAttribute("userId", id);

@@ -13,27 +13,20 @@ import lombok.Setter;
 public class Mine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long mine_id;
 
-    // Короткий код для отчетов, например "MINE-SIB-01"
     @Column(nullable = false, unique = true, length = 50)
-    private String code;
-
-    // Полное название
-    @Column(nullable = false)
-    private String name;
+    private String mine_code;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private String mine_name;
+
+    @Column(nullable = false)
+    private boolean mine_enabled = true;
 
     @Column(length = 500)
-    private String address; // Юридический или фактический адрес
+    private String mine_address;
 
     @Column(length = 1000)
-    private String description; // Краткое описание (тип добычи, особенности)
-
-    public Mine(String code, String name) {
-        this.code = code;
-        this.name = name;
-    }
+    private String mine_description;
 }

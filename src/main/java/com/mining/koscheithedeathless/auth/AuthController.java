@@ -37,7 +37,7 @@ public class AuthController {
 
         // Находим юзера в базе по ЛОГИНУ (было findByEmail)
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        Long mineId = user.getMine() != null ? user.getMine().getId() : null;
+        Long mineId = user.getMine() != null ? user.getMine().getMine_id() : null;
 
         // Генерируем токен на основе ЛОГИНА
         String token = jwtService.generateToken(userDetails.getUsername(), role, mineId);

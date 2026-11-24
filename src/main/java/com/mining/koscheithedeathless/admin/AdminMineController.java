@@ -38,36 +38,36 @@ public class AdminMineController {
         return "redirect:/admin/mines";
     }
 
-    @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Mine mine = mineService.getMineById(id); // <-- Используем сервис
+    @GetMapping("/{mine_id}/edit")
+    public String showEditForm(@PathVariable Long mine_id, Model model) {
+        Mine mine = mineService.getMineById(mine_id);
 
         MineRequest req = new MineRequest();
-        req.setCode(mine.getCode());
-        req.setName(mine.getName());
-        req.setAddress(mine.getAddress());
-        req.setDescription(mine.getDescription());
+        req.setMine_code(mine.getMine_code());
+        req.setMine_name(mine.getMine_name());
+        req.setMine_address(mine.getMine_address());
+        req.setMine_description(mine.getMine_description());
 
         model.addAttribute("mineForm", req);
-        model.addAttribute("mineId", id);
+        model.addAttribute("mineId", mine_id);
         return "admin/mines/edit";
     }
 
-    @PostMapping("/{id}/edit")
-    public String updateMine(@PathVariable Long id,
+    @PostMapping("/{mine_id}/edit")
+    public String updateMine(@PathVariable Long mine_id,
                              @Valid @ModelAttribute("mineForm") MineRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "admin/mines/edit";
         }
-        mineService.updateMine(id, request);
+        mineService.updateMine(mine_id, request);
         return "redirect:/admin/mines";
     }
 
     // Замена удаления на блокировку
-    @PostMapping("/{id}/toggle")
-    public String toggleStatus(@PathVariable Long id) {
-        mineService.toggleMineStatus(id);
+    @PostMapping("/{mine_id}/toggle")
+    public String toggleStatus(@PathVariable Long mine_id) {
+        mineService.toggleMineStatus(mine_id);
         return "redirect:/admin/mines";
     }
 }

@@ -29,34 +29,33 @@
         <th>Название</th>
         <th>Адрес</th>
         <th>Описание</th>
-        <th>Статус</th> <!-- НОВАЯ КОЛОНКА -->
-        <th>Действия</th> <!-- НОВАЯ КОЛОНКА -->
+        <th>Статус</th>
+        <th>Действия</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="mine : ${mines}">
-        <td th:text="${mine.id}">1</td>
-        <td th:text="${mine.code}">MINE-01</td>
-        <td th:text="${mine.name}">Северный</td>
-        <td th:text="${mine.address}">г. Магнитогорск</td>
-        <td th:text="${mine.description}">Железорудный</td>
+        <td th:text="${mine.mine_id}">1</td>
+        <td th:text="${mine.mine_code}">MINE-01</td>
+        <td th:text="${mine.mine_name}">Северный</td>
+        <td th:text="${mine.mine_address}">г. Магнитогорск</td>
+        <td th:text="${mine.mine_description}">Железорудный</td>
 
-        <!-- НОВАЯ ЯЧЕЙКА СТАТУСА -->
         <td>
-            <span th:if="${mine.enabled}" style="color: green; font-weight: bold;">Активен</span>
-            <span th:if="${!mine.enabled}" style="color: red; font-weight: bold;">Заблокирован</span>
+            <span th:if="${mine.mine_enabled}" style="color: green; font-weight: bold;">Активен</span>
+            <span th:if="${!mine.mine_enabled}" style="color: red; font-weight: bold;">Заблокирован</span>
         </td>
 
-        <!-- НОВАЯ ЯЧЕЙКА С КНОПКАМИ -->
         <td>
-            <a th:href="@{/admin/mines/{id}/edit(id=${mine.id})}" class="btn btn-warning" style="padding: 4px 8px;">✏️ Ред.</a>
+            <a th:href="@{/admin/mines/{mine_id}/edit(mine_id=${mine.mine_id})}"
+               class="btn btn-warning" style="padding: 4px 8px;">✏️ Ред.</a>
 
-            <!-- Форма для блокировки/разблокировки -->
-            <form th:action="@{/admin/mines/{id}/toggle(id=${mine.id})}" method="post" style="display:inline;">
+            <form th:action="@{/admin/mines/{mine_id}/toggle(mine_id=${mine.mine_id})}"
+                  method="post" style="display:inline;">
                 <button type="submit" class="btn"
-                        th:classappend="${mine.enabled} ? 'btn-danger' : 'btn-success'"
+                        th:classappend="${mine.mine_enabled} ? 'btn-danger' : 'btn-success'"
                         style="padding: 4px 8px;"
-                        th:text="${mine.enabled} ? '🚫 Блок.' : '✅ Акт.'">
+                        th:text="${mine.mine_enabled} ? '🚫 Блок.' : '✅ Акт.'">
                 </button>
             </form>
         </td>
