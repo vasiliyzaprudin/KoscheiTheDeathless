@@ -77,7 +77,9 @@
         <label for="mineId">Организация (Рудник):</label>
         <select id="mineId" th:field="*{mineId}">
             <option value="">-- Управляющая компания (Холдинг) --</option>
-            <option th:each="m : ${mines}" th:value="${m.id}" th:text="${m.name}"></option>
+            <option th:each="m : ${mines}"
+                    th:value="${m.mine_id}"
+                    th:text="${m.mine_name}"></option>
         </select>
         <div class="error" th:if="${#fields.hasErrors('mineId')}" th:errors="*{mineId}"></div>
     </div>
