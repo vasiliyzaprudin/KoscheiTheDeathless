@@ -39,11 +39,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // REST API аутентификация доступна всем
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // REST: управление рудниками — только ADMIN
+                        .requestMatchers("/api/admin/mines/**").hasRole("ADMIN")
+
                         // Остальной REST API требует JWT
                         .requestMatchers("/api/**").authenticated()
 
                         // MVC: управление пользователями только для ADMIN
                         .requestMatchers("/users/**").hasRole("ADMIN")
+
+                        // Статические HTML-страницы админского интерфейса рудников — только ADMIN
+                        .requestMatchers("/admin/mines/**").hasRole("ADMIN")
+
+                        // Общая статика (JS/CSS) — доступна всем
+                        .requestMatchers("/shared/**").permitAll()
+
                         .requestMatchers("/login", "/register").permitAll()
 
                         .requestMatchers("/dashboard").authenticated()

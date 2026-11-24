@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать рудник</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; box-sizing: border-box;
+            border: 1px solid #ccc; border-radius: 4px; }
+        textarea { resize: vertical; min-height: 70px; }
+        .error { color: #c00; font-size: 0.9em; margin-top: 4px; }
+        .has-error input, .has-error textarea { border-color: #c00; }
+        button { padding: 10px 20px; background: #2a7ae2; color: #fff;
+            border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        .back-link { display: block; margin-top: 15px; text-align: center;
+            text-decoration: none; color: #2a7ae2; }
+        .form-error { background: #f8d7da; color: #721c24; padding: 10px;
+            border-radius: 4px; margin-bottom: 15px; }
+        .loading { color: #888; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<h1>Редактировать рудник</h1>
+
+<div id="formError" class="form-error" style="display:none;"></div>
+<div id="loading" class="loading">Загрузка…</div>
+
+<form id="mineForm" novalidate style="display:none;">
+    <div class="form-group" data-field="mine_code">
+        <label for="mine_code">Код рудника:</label>
+        <input type="text" id="mine_code" name="mine_code" maxlength="50"/>
+        <div class="error"></div>
+    </div>
+
+    <div class="form-group" data-field="mine_name">
+        <label for="mine_name">Название:</label>
+        <input type="text" id="mine_name" name="mine_name"/>
+        <div class="error"></div>
+    </div>
+
+    <div class="form-group" data-field="mine_address">
+        <label for="mine_address">Адрес:</label>
+        <input type="text" id="mine_address" name="mine_address" maxlength="500"/>
+        <div class="error"></div>
+    </div>
+
+    <div class="form-group" data-field="mine_description">
+        <label for="mine_description">Описание:</label>
+        <textarea id="mine_description" name="mine_description" maxlength="1000"></textarea>
+        <div class="error"></div>
+    </div>
+
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<a href="/admin/mines/list.html" class="back-link">← Назад к списку</a>
+
+<script src="/shared/js/api.js"></script>
+<script>
+    const API_URL = '/api/admin/mines';
+    const params = new URLSearchParams(window.location.search);
+    const mineId = params.get('id');
+
+    if (!mineId) {
+        showFormError('Не указан ID рудника в URL (?id=...)');
+    } else {
+        loadMine(mineId);
+    }
+
+    async function loadMine(id) {
+        try {
+            const mine = await API.get(`${API_URL}/${id}`);
+            document.getElementById('mine_code').value = mine.mine_code;
+            document.getElementById('mine_name').value = mine.mine_name;
+            document.getElementById('mine_address').value = mine.mine_address || '';
+            document.getElementById('mine_description').value = mine.mine_description || '';
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mineForm').style.display = 'block';
+        } catch (e) {
+            document.getElementById('loading').style.display = 'none';
+            showFormError(e.status === 404 ? 'Рудник не найден' : 'Ошибка загрузки: ' + e.message);
+        }
+    }
+
+    document.getElementById('mineForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearErrors();
+
+        const payload = {
+            mine_code: document.getElementById('mine_code').value.trim(),
+            mine_name: document.getElementById('mine_name').value.trim(),
+            mine_address: document.getElementById('mine_address').value.trim(),
+            mine_description: document.getElementById('mine_description').value.trim()
+        };
+
+        try {
+            await API.put(`${API_URL}/${mineId}`, payload);
+            window.location.href = '/admin/mines/list.html';
+        } catch (e) {
+            if (e.status === 400 && e.data && e.data.errors) {
+                showFieldErrors(e.data.errors);
+            } else if (e.status === 404) {
+                showFormError('Рудник не найден');
+            } else {
+                showFormError(e.message);
+            }
+        }
+    });
+
+    function clearErrors() {
+        document.querySelectorAll('.form-group').forEach(g => {
+            g.classList.remove('has-error');
+            g.querySelector('.error').textContent = '';
+        });
+        const fe = document.getElementById('formError');
+        fe.style.display = 'none';
+        fe.textContent = '';
+    }
+
+    function showFieldErrors(errors) {
+        Object.entries(errors).forEach(([field, message]) => {
+            const group = document.querySelector(`.form-group[data-field="${field}"]`);
+            if (group) {
+                group.classList.add('has-error');
+                group.querySelector('.error').textContent = message;
+            }
+        });
+    }
+
+    function showFormError(message) {
+        const fe = document.getElementById('formError');
+        fe.textContent = message;
+        fe.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
