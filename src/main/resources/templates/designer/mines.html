@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Конструктор классификаций</title>
+</head>
+<body>
+<h1>Выберите рудник для настройки классификации</h1>
+<ul>
+    <li th:each="mine : ${mines}">
+        <a th:href="@{/designer/{id}/classes(id=${mine.id})}" th:text="${mine.name}"></a>
+    </li>
+</ul>
+</body>
+</html>

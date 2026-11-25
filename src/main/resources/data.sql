@@ -96,3 +96,96 @@ WHERE u.username = 'Kalachov' AND r.code = 'SURVEYOR'
   AND NOT EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role_id = r.id);
 
 
+INSERT INTO geological_stability_classes (geological_stability_class_code) VALUES
+                                                                               ('1b'), ('2b'), ('3b'), ('4b'), ('5b'),
+                                                                               ('1p'), ('2p'), ('3p'), ('4p'), ('5p'),
+                                                                               ('1s'), ('2s'), ('3s'), ('4s'), ('5s')
+ON CONFLICT (geological_stability_class_code) DO NOTHING;
+
+
+INSERT INTO property_stabilities (property_stability_name, property_stability_name_ru, unit, data_type) VALUES
+                                                                                                            ('strength', 'Прочность', 'МПа', 'число'),
+                                                                                                            ('block_shape', 'Форма блоков', '-', 'текст'),
+                                                                                                            ('block_size', 'Размер блоков', 'м', 'число'),
+                                                                                                            ('block_cohesion', 'Сцепленность блоков', '-', 'текст'),
+                                                                                                            ('block_interlocking', 'Зажатость блоков', '-', 'текст'),
+                                                                                                            ('brittleness', 'Хрупкость', '-', 'текст'),
+                                                                                                            ('plasticity', 'Пластичность', '-', 'текст'),
+                                                                                                            ('viscosity', 'Вязкость', '-', 'текст'),
+                                                                                                            ('fragment_shape', 'Форма кусков', '-', 'текст'),
+                                                                                                            ('fragment_size', 'Размер кусков', 'м', 'число'),
+                                                                                                            ('fragment_connectivity', 'Связность кусков', '-', 'текст'),
+                                                                                                            ('slaking_under_impact', 'Осыпаемость при ударе', '-', 'текст'),
+                                                                                                            ('angle_of_repose', 'Угол откоса насыпи', 'градусы', 'число'),
+                                                                                                            ('grain_shape', 'Форма зерен', '-', 'текст'),
+                                                                                                            ('caking_tendency', 'Слеживаемость', '-', 'текст'),
+                                                                                                            ('water_content', 'Обводненность', '-', 'текст'),
+                                                                                                            ('strike_azimuth_of_bedding', 'Азимут падения слоистости', 'градусы', 'число'),
+                                                                                                            ('dip_angle_of_bedding', 'Угол падения слоистости', 'градусы', 'число'),
+                                                                                                            ('weathering_degree', 'Выветрелость', '-', 'текст'),
+                                                                                                            ('stickiness', 'Липкость', '-', 'текст'),
+                                                                                                            ('volume_increase_upon_wetting', 'Увеличение объема при намокании', '-', 'текст'),
+                                                                                                            ('creep', 'Ползучесть', '-', '-')
+ON CONFLICT (property_stability_name) DO NOTHING;
+
+INSERT INTO range_value_property_stability_name (range_value_property_stability_name, range_value_property_stability_name_ru, min_value_property_stability, max_value_property_stability, property_stability_id)
+SELECT v.name, v.name_ru, v.min_val, v.max_val, p.property_stability_id
+FROM (VALUES
+          ('very_strong', 'Весьма прочные', 150.0, 300.0, 'strength'),
+          ('strong', 'Прочные', 50.0, 149.999, 'strength'),
+          ('weak', 'Непрочные', 5.0, 49.999, 'strength'),
+          ('very_weak', 'Весьма непрочные', 0.0, 4.999, 'strength'),
+          ('regular', 'Правильная', null, null, 'block_shape'),
+          ('acute_angled', 'Остроугольная', null, null, 'block_shape'),
+          ('rounded', 'Округлая', null, null, 'block_shape'),
+          ('large_blocks', 'Крупные', 1.0, 10.0, 'block_size'),
+          ('medium_blocks', 'Средние', 0.1, 0.999, 'block_size'),
+          ('small_blocks', 'Мелкие', 0.0, 0.0999, 'block_size'),
+          ('well_cohesive', 'Хорошо сцепленные', null, null, 'block_cohesion'),
+          ('moderately_cohesive', 'Умеренно сцепленные', null, null, 'block_cohesion'),
+          ('poorly_cohesive', 'Плохо сцепленные', null, null, 'block_cohesion'),
+          ('confined', 'Зажатые', null, null, 'block_interlocking'),
+          ('unconfined', 'Не зажатые', null, null, 'block_interlocking'),
+          ('splitting', 'Раскалываются', null, null, 'brittleness'),
+          ('non_splitting', 'Не раскалываются', null, null, 'brittleness'),
+          ('hard', 'Твердый', null, null, 'plasticity'),
+          ('soft', 'Мягкий', null, null, 'plasticity'),
+          ('viscous', 'Вязкий', null, null, 'viscosity'),
+          ('non_viscous', 'Невязкий', null, null, 'viscosity'),
+          ('elongated', 'Вытянутая', null, null, 'fragment_shape'),
+          ('platy', 'Пластинчатая', null, null, 'fragment_shape'),
+          ('crumpled', 'Мятая', null, null, 'fragment_shape'),
+          ('scaly', 'Чешуйчатая', null, null, 'fragment_shape'),
+          ('large_fragments', 'Крупные', 1.0, 10.0, 'fragment_size'),
+          ('medium_fragments', 'Средние', 0.1, 0.999, 'fragment_size'),
+          ('small_fragments', 'Мелкие', 0.0, 0.0999, 'fragment_size'),
+          ('well_separated', 'Хорошо разделяются', null, null, 'fragment_connectivity'),
+          ('poorly_separated', 'Плохо разделяются', null, null, 'fragment_connectivity'),
+          ('heavily_crumbling', 'Сильно осыпаются', null, null, 'slaking_under_impact'),
+          ('moderately_crumbling', 'Умеренно осыпаются', null, null, 'slaking_under_impact'),
+          ('slightly_crumbling', 'Слабо осыпаются', null, null, 'slaking_under_impact'),
+          ('steep', 'Крутой', 45.0, 90.0, 'angle_of_repose'),
+          ('moderate', 'Обычный', 25.0, 44.999, 'angle_of_repose'),
+          ('gentle', 'Пологий', 0.0, 24.999, 'angle_of_repose'),
+          ('needle_shaped', 'Игольчатая', null, null, 'grain_shape'),
+          ('angular_grain', 'Угловатая', null, null, 'grain_shape'),
+          ('rounded_grain', 'Окатанная', null, null, 'grain_shape'),
+          ('caking', 'Слеживаются', null, null, 'caking_tendency'),
+          ('non_caking', 'Не слеживаются', null, null, 'caking_tendency'),
+          ('water_saturated', 'Водонасыщенный', null, null, 'water_content'),
+          ('wet', 'Мокрый', null, null, 'water_content'),
+          ('moist', 'Влажный', null, null, 'water_content'),
+          ('dry', 'Сухой', null, null, 'water_content'),
+          ('fresh', 'Свежая', null, null, 'weathering_degree'),
+          ('slightly_weathered', 'Слабо выветрелая', null, null, 'weathering_degree'),
+          ('moderately_weathered', 'Средне выветрелая', null, null, 'weathering_degree'),
+          ('highly_weathered', 'Сильно выветрелая', null, null, 'weathering_degree'),
+          ('completely_weathered', 'Полностью выветрелая', null, null, 'weathering_degree'),
+          ('sticky', 'Липкий', null, null, 'stickiness'),
+          ('non_sticky', 'Нелипкий', null, null, 'stickiness'),
+          ('slaking', 'Размокает', null, null, 'stickiness'),
+          ('volume_increasing', 'Увеличивается в объеме', null, null, 'volume_increase_upon_wetting'),
+          ('volume_stable', 'Не изменяется в объеме', null, null, 'volume_increase_upon_wetting')
+     ) AS v(name, name_ru, min_val, max_val, prop_name)
+         JOIN property_stabilities p ON p.property_stability_name = v.prop_name
+ON CONFLICT DO NOTHING;
