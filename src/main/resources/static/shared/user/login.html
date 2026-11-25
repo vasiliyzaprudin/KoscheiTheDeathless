@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f1f4;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 36px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 360px;
+        }
+
+        h2 { text-align: center; margin-bottom: 24px; color: #1f2d3d; font-size: 22px; font-weight: 600; }
+
+        .form-group { margin-bottom: 16px; }
+
+        label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: #4a5568; }
+
+        input {
+            width: 100%;
+            padding: 11px 13px;
+            border: 1px solid #d1d9e6;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #1f2d3d;
+            background: #fafbfc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2a7ae2;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(42, 122, 226, 0.12);
+        }
+
+        /* Обёртка поля пароля */
+        .password-wrapper { position: relative; }
+
+        .password-wrapper input { padding-right: 42px; }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7a869a;
+            border-radius: 6px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: #2a7ae2;
+            background: rgba(42, 122, 226, 0.08);
+        }
+
+        .toggle-password:active { transform: translateY(-50%) scale(0.95); }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 11px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-primary { background: #2a7ae2; color: #fff; }
+        .btn-primary:hover { background: #1e5cb3; }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background: transparent;
+            color: #2a7ae2;
+            border: 1px solid #2a7ae2;
+            margin-top: 12px;
+        }
+        .btn-secondary:hover { background: rgba(42, 122, 226, 0.06); }
+
+        .error {
+            color: #d93025;
+            background: #fdecea;
+            border: 1px solid #f5c6cb;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <h2>Вход</h2>
+    <div id="errorMsg" class="error" style="display:none;"></div>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Логин</label>
+            <input type="text" id="username" name="username" placeholder="Введите логин" required autofocus/>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="Введите пароль" required/>
+                <button type="button" id="togglePassword" class="toggle-password" aria-label="Показать пароль">
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+
+    <a href="/shared/user/registration.html" class="btn btn-secondary">Нет аккаунта? Зарегистрироваться</a>
+</div>
+
+<script src="/shared/js/api.js"></script>
+<script>
+    // === Показ/скрытие пароля ===
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    toggleBtn.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+
+        if (isPassword) {
+            eyeIcon.innerHTML = `
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+            `;
+            toggleBtn.setAttribute('aria-label', 'Скрыть пароль');
+        } else {
+            eyeIcon.innerHTML = `
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            `;
+            toggleBtn.setAttribute('aria-label', 'Показать пароль');
+        }
+    });
+
+    // === Отправка формы ===
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const errDiv = document.getElementById('errorMsg');
+        errDiv.style.display = 'none';
+
+        const payload = {
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value
+        };
+
+        try {
+            const response = await API.post('/api/auth/login', payload);
+            localStorage.setItem('jwt', response.token);
+
+            if (response.role === 'ADMIN') {
+                window.location.href = '/admin/index.html';
+            } else {
+                window.location.href = '/user/home.html';
+            }
+        } catch (error) {
+            errDiv.textContent = error.data?.message || 'Ошибка входа';
+            errDiv.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

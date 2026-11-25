@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background: #2a7ae2; color: #fff; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px;}
+        .login-link { text-align: center; margin-top: 15px; font-size: 14px; }
+        .login-link a { color: #2a7ae2; text-decoration: none; }
+        .msg { padding: 10px; border-radius: 4px; margin-bottom: 15px; display: none; }
+        .msg.success { background: #d4edda; color: #155724; }
+        .msg.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+<h1>Регистрация</h1>
+<div id="msgBox" class="msg"></div>
+
+<form id="registerForm" novalidate>
+    <div class="form-group">
+        <label for="username">Логин:</label>
+        <input type="text" id="username" name="username"/>
+    </div>
+    <div class="form-group">
+        <label for="familiya">Фамилия:</label>
+        <input type="text" id="familiya" name="familiya"/>
+    </div>
+    <div class="form-group">
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name"/>
+    </div>
+    <div class="form-group">
+        <label for="otchestvo">Отчество:</label>
+        <input type="text" id="otchestvo" name="otchestvo"/>
+    </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"/>
+    </div>
+    <div class="form-group">
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password"/>
+    </div>
+    <div class="form-group">
+        <label for="roleId">Должность:</label>
+        <select id="roleId" name="roleId">
+            <option value="">— Выберите роль —</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="mineId">Организация (Рудник):</label>
+        <select id="mineId" name="mineId">
+            <option value="">-- Управляющая компания (Холдинг) --</option>
+        </select>
+    </div>
+    <button type="submit">Зарегистрироваться</button>
+</form>
+
+<div class="login-link">
+    <a href="/shared/user/login.html">Уже есть аккаунт? Войти</a>
+</div>
+
+<script src="/shared/js/api.js"></script>
+<script>
+    // Загрузка справочников
+    async function loadDictionaries() {
+        try {
+            // ВАЖНО: Предполагается, что вы создали RoleController для /api/v1/roles
+            const roles = await API.get('/api/v1/roles');
+            const roleSelect = document.getElementById('roleId');
+            roles.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                opt.textContent = r.title;
+                roleSelect.appendChild(opt);
+            });
+
+            const mines = await API.get('/api/admin/mines');
+            const mineSelect = document.getElementById('mineId');
+            mines.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.mine_id;
+                opt.textContent = m.mine_name;
+                mineSelect.appendChild(opt);
+            });
+        } catch (e) { console.error("Ошибка загрузки справочников", e); }
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msgBox = document.getElementById('msgBox');
+        msgBox.style.display = 'none';
+
+        const payload = {
+            username: document.getElementById('username').value.trim(),
+            familiya: document.getElementById('familiya').value.trim(),
+            name: document.getElementById('name').value.trim(),
+            otchestvo: document.getElementById('otchestvo').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value,
+            roleId: document.getElementById('roleId').value ? Number(document.getElementById('roleId').value) : null,
+            mineId: document.getElementById('mineId').value ? Number(document.getElementById('mineId').value) : null
+        };
+
+        try {
+            const res = await API.post('/api/auth/register', payload);
+            msgBox.className = 'msg success';
+            msgBox.textContent = res.message;
+            msgBox.style.display = 'block';
+            document.getElementById('registerForm').reset();
+        } catch (e) {
+            msgBox.className = 'msg error';
+            msgBox.textContent = e.data?.message || 'Ошибка регистрации';
+            msgBox.style.display = 'block';
+        }
+    });
+
+    loadDictionaries();
+</script>
+</body>
+</html>

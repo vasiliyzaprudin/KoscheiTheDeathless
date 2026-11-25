@@ -34,7 +34,7 @@ public class User {
     @Column(nullable = false, length = 150)
     private String email;
 
-    @JsonIgnore // Никогда не отдаем пароль в JSON!
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
@@ -52,7 +52,7 @@ public class User {
     private Mine mine;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private boolean enabled;
 
     public User() {}
 

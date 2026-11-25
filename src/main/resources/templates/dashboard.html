@@ -20,7 +20,7 @@
 
     <!-- Отображение для сотрудников РУДНИКА -->
     <div th:if="${!isHolding}">
-        <p>Вы работаете на руднике: <b><span th:text="${mine.name}"></span></b> (Код: <span th:text="${mine.code}"></span>)</p>
+        <p>Вы работаете на руднике: <b><span th:text="${mine.mine_name}"></span></b> (Код: <span th:text="${mine.mine_code}"></span>)</p>
     </div>
 
     <!-- Отображение для сотрудников УК -->
