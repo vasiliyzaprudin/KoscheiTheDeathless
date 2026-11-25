@@ -28,7 +28,7 @@ public class UserResponse {
         this.familiya = user.getFamiliya();
         this.otchestvo = user.getOtchestvo();
         this.email = user.getEmail();
-        this.mineName = user.getMine() != null ? user.getMine().getName() : "Управляющая компания";
+        this.mineName = user.getMine() != null ? user.getMine().getMine_name() : "Управляющая компания";
         this.enabled = user.isEnabled();
         this.roleTitles = user.getRoles().stream()
                 .map(role -> role.getTitle())

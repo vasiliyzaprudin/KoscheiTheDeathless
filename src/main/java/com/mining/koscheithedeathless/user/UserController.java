@@ -34,8 +34,13 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        UserResponse createdUser = userService.createUser(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<Void> approveUser(@PathVariable Long id) {
+        userService.approveUser(id);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")

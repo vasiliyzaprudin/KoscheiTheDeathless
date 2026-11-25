@@ -4,6 +4,8 @@ import com.mining.koscheithedeathless.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.stream.Collectors;
@@ -37,52 +40,54 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // REST API аутентификация доступна всем
+                        // 1. Логин и регистрация — открыты всем
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Остальной REST API требует JWT
+
+                        // 2. Статика (стили, скрипты, страницы входа/регистрации)
+                        .requestMatchers("/shared/**", "/css/**", "/js/**").permitAll()
+
+                        // 3. HTML-страницы админки и пользователя открыты,
+                        //    данные защищены на уровне API ниже.
+                        .requestMatchers("/admin/**", "/user/**").permitAll()
+
+                        // 4. Справочники: GET доступен всем (нужно для регистрации),
+                        //    остальные методы (POST/PUT/DELETE) — только ADMIN.
+                        .requestMatchers(HttpMethod.GET, "/api/v1/roles").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/admin/mines/**").permitAll()
+
+                        // 5. Управление — только ADMIN
+                        .requestMatchers("/api/admin/mines/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/roles").hasRole("ADMIN")
+
+                        // 6. Любой другой API — только для аутентифицированных
                         .requestMatchers("/api/**").authenticated()
 
-                        // MVC: управление пользователями только для ADMIN
-                        .requestMatchers("/users/**").hasRole("ADMIN")
-                        .requestMatchers("/login", "/register").permitAll()
-
-                        .requestMatchers("/dashboard").authenticated()
-
+                        // 7. Всё остальное (корень "/", error) — открыто
                         .anyRequest().permitAll()
                 )
+                // Сессии не создаём — используем JWT
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // При отсутствии/невалидности токена возвращаем 401 (не редирект)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .successHandler((request, response, authentication) -> {
-                            var authorities = authentication.getAuthorities();
-                            boolean isAdmin = authorities.stream()
-                                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                            if (isAdmin) {
-                                response.sendRedirect("/users"); // Админ в админку
-                            } else {
-                                response.sendRedirect("/dashboard"); // Остальные в личный кабинет
-                            }
-                        })
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                );
+        // formLogin и logout не нужны: вход через /api/auth/login,
+        // выход — удаление токена на клиенте.
 
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username) // <-- Ищем по логину
+        return username -> userRepository.findByUsername(username)
                 .map(user -> org.springframework.security.core.userdetails.User.builder()
-                        .username(user.getUsername()) // <-- Берем логин
+                        .username(user.getUsername())
                         .password(user.getPassword())
                         .authorities(user.getRoles().stream()
                                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getCode()))
