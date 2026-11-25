@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Настройка свойств</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #f4f4f4; }
+        select { width: 100%; padding: 5px; }
+        .btn { padding: 10px 20px; background: #2a7ae2; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<h1>Настройка свойств для класса: <span th:text="${classMine.geologicalStabilityClassMineCode}"></span></h1>
+<h3>Глобальный класс: <span th:text="${classMine.geologicalStabilityClass.geologicalStabilityClassCode}"></span></h3>
+
+<form th:action="@{/designer/classes/{id}/properties(id=${classMine.geologicalStabilityClassMineId})}" method="post">
+    <table>
+        <thead>
+        <tr>
+            <th>Свойство</th>
+            <th>Ед. изм.</th>
+            <th>Значение (Диапазон)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Проходимся по всем свойствам этого класса -->
+        <tr th:each="prop : ${properties}">
+            <td th:text="${prop.propertyStabilityNameRu}"></td>
+            <td th:text="${prop.unit}"></td>
+            <td>
+                <!-- Скрытое поле для передачи ID свойства -->
+                <input type="hidden" name="propertyIds" th:value="${prop.propertyStabilityId}">
+
+                <select name="valueIds">
+                    <option value="">— Не выбрано —</option>
+                    <!-- Проходимся по доступным значениям для этого свойства -->
+                    <option th:each="val : ${availableValues[prop.propertyStabilityId]}"
+                            th:value="${val.valuePropertyStabilityId}"
+                            th:text="${val.rangeValuePropertyStabilityNameRu}"
+                            th:selected="${savedValues.![valuePropertyStability].contains(val)}">
+                    </option>
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <br>
+    <button type="submit" class="btn">Сохранить настройки</button>
+</form>
+
+<br>
+<a th:href="@{/designer/{mineId}/classes(mineId=${classMine.mine.id})}">← Назад к классам рудника</a>
+</body>
+</html>
