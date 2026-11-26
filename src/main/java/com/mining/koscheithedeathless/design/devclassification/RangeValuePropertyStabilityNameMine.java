@@ -11,7 +11,7 @@ import lombok.Setter;
 public class RangeValuePropertyStabilityNameMine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long valuePropertyStabilityMineId; // Как в твоем документе
+    private Long valuePropertyStabilityMineId;
 
     // ID класса рудника (FK)
     @ManyToOne(fetch = FetchType.LAZY)

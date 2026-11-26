@@ -13,20 +13,20 @@ import lombok.Setter;
 public class Mine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long mine_id;
+    private Long mineId;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String mine_code;
+    private String mineCode;
 
     @Column(nullable = false)
-    private String mine_name;
+    private String mineName;
 
     @Column(nullable = false)
-    private boolean mine_enabled = true;
+    private boolean mineEnabled = true;
 
     @Column(length = 500)
-    private String mine_address;
+    private String mineAddress;
 
     @Column(length = 1000)
-    private String mine_description;
+    private String mineDescription;
 }

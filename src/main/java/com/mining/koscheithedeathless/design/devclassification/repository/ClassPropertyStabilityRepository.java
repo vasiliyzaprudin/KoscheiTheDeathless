@@ -7,7 +7,5 @@ import java.util.List;
 
 @Repository
 public interface ClassPropertyStabilityRepository extends JpaRepository<ClassPropertyStability, Long> {
-
-    // Найти все свойства, привязанные к конкретному классу
-    List<ClassPropertyStability> findByGeologicalStabilityClassGeologicalStabilityClassId(Long classId);
+    List<ClassPropertyStability> findByGeologicalStabilityClass_GeologicalStabilityClassId(Long globalClassId);
 }

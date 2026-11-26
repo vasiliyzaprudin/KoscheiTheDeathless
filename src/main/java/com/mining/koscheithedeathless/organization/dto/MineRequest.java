@@ -8,11 +8,12 @@ import lombok.Data;
 public class MineRequest {
     @NotBlank(message = "Код рудника обязателен.")
     @Size(max = 50)
-    private String mine_code;
+    private String mineCode;
 
     @NotBlank(message = "Название обязательно.")
-    private String mine_name;
+    private String mineName;
 
-    private String mine_address;
-    private String mine_description;
+    private String mineAddress;
+
+    private String mineDescription;
 }

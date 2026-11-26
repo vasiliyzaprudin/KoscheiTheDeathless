@@ -7,11 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "class_property_stability")
+@Table(name = "class_property_stability",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_class_property",
+                columnNames = {"geological_stability_class_id", "property_stability_id"}))
 public class ClassPropertyStability {
 
-    // Составной первичный ключ (или просто ID, как удобнее)
-    // Сделаем просто автоинкрементный ID, так надежнее для JPA
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long classPropertyStabilityId;

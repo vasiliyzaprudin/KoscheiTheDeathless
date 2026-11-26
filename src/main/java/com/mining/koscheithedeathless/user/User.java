@@ -48,7 +48,7 @@ public class User {
 
     // Привязка к руднику.
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mine_id")
+    @JoinColumn(name = "mineId")
     private Mine mine;
 
     @Column(nullable = false)

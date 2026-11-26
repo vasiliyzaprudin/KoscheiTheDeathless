@@ -4,5 +4,11 @@ import com.mining.koscheithedeathless.design.devclassification.RangeValuePropert
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
-public interface RangeValuePropertyStabilityNameRepository extends JpaRepository<RangeValuePropertyStabilityName, Long> {}
+public interface RangeValuePropertyStabilityNameRepository
+        extends JpaRepository<RangeValuePropertyStabilityName, Long> {
+
+    List<RangeValuePropertyStabilityName> findByPropertyStability_PropertyStabilityId(Long propertyId);
+}

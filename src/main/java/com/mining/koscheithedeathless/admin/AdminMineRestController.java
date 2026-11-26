@@ -29,10 +29,10 @@ public class AdminMineRestController {
                 .toList();
     }
 
-    @GetMapping("/{mine_id}")
-    public ResponseEntity<?> getMine(@PathVariable Long mine_id) {
+    @GetMapping("/{mineId}")
+    public ResponseEntity<?> getMine(@PathVariable Long mineId) {
         try {
-            Mine mine = mineService.getMineById(mine_id);
+            Mine mine = mineService.getMineById(mineId);
             return ResponseEntity.ok(MineResponse.from(mine));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -51,14 +51,14 @@ public class AdminMineRestController {
     }
 
     @PutMapping("/{mine_id}")
-    public ResponseEntity<?> updateMine(@PathVariable Long mine_id,
+    public ResponseEntity<?> updateMine(@PathVariable Long mineId,
                                         @Valid @RequestBody MineRequest request,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return validationError(bindingResult);
         }
         try {
-            Mine updated = mineService.updateMine(mine_id, request);
+            Mine updated = mineService.updateMine(mineId, request);
             return ResponseEntity.ok(MineResponse.from(updated));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -67,10 +67,10 @@ public class AdminMineRestController {
     }
 
     @PostMapping("/{mine_id}/toggle")
-    public ResponseEntity<?> toggleStatus(@PathVariable Long mine_id) {
+    public ResponseEntity<?> toggleStatus(@PathVariable Long mineId) {
         try {
-            mineService.toggleMineStatus(mine_id);
-            Mine mine = mineService.getMineById(mine_id);
+            mineService.toggleMineStatus(mineId);
+            Mine mine = mineService.getMineById(mineId);
             return ResponseEntity.ok(MineResponse.from(mine));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

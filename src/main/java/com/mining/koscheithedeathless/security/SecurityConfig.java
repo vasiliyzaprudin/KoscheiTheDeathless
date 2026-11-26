@@ -60,6 +60,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/roles").hasRole("ADMIN")
 
+                                .requestMatchers("/researchdesignorg/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/designer/**").permitAll()   // для просмотра
+                                .requestMatchers("/api/designer/**").authenticated()
+
                         // 6. Любой другой API — только для аутентифицированных
                         .requestMatchers("/api/**").authenticated()
 
