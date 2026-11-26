@@ -18,11 +18,11 @@ public class MineService {
 
     public List<Mine> getActiveMines() {
         return mineRepository.findAll().stream()
-                .filter(Mine::isMine_enabled)
+                .filter(Mine::isMineEnabled)
                 .toList();
     }
-    public Mine getMineById(Long mine_id) {
-        return mineRepository.findById(mine_id)
+    public Mine getMineById(Long mineId) {
+        return mineRepository.findById(mineId)
                 .orElseThrow(() -> new RuntimeException("Рудник не найден"));
     }
 
@@ -30,31 +30,31 @@ public class MineService {
     @Transactional
     public Mine createMine(MineRequest request) {
         Mine mine = new Mine();
-        mine.setMine_code(request.getMine_code());
-        mine.setMine_name(request.getMine_name());
-        mine.setMine_address(request.getMine_address());
-        mine.setMine_description(request.getMine_description());
+        mine.setMineCode(request.getMineCode());
+        mine.setMineName(request.getMineName());
+        mine.setMineAddress(request.getMineAddress());
+        mine.setMineDescription(request.getMineDescription());
         return mineRepository.save(mine);
     }
 
     @Transactional
-    public Mine updateMine(Long mine_id, MineRequest request) {
-        Mine mine = mineRepository.findById(mine_id)
+    public Mine updateMine(Long mineId, MineRequest request) {
+        Mine mine = mineRepository.findById(mineId)
                 .orElseThrow(() -> new RuntimeException("Рудник не найден"));
 
-        mine.setMine_code(request.getMine_code());
-        mine.setMine_name(request.getMine_name());
-        mine.setMine_address(request.getMine_address());
-        mine.setMine_description(request.getMine_description());
+        mine.setMineCode(request.getMineCode());
+        mine.setMineName(request.getMineName());
+        mine.setMineAddress(request.getMineAddress());
+        mine.setMineDescription(request.getMineDescription());
         return mineRepository.save(mine);
     }
 
     // Переключение статуса (вместо удаления)
     @Transactional
-    public void toggleMineStatus(Long id) {
-        Mine mine = mineRepository.findById(id)
+    public void toggleMineStatus(Long mineId) {
+        Mine mine = mineRepository.findById(mineId)
                 .orElseThrow(() -> new RuntimeException("Рудник не найден"));
-        mine.setMine_enabled(!mine.isMine_enabled());
+        mine.setMineEnabled(!mine.isMineEnabled());
         mineRepository.save(mine);
     }
 }

@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface GeologicalStabilityClassMineRepository extends JpaRepository<GeologicalStabilityClassMine, Long> {
-    List<GeologicalStabilityClassMine> findByMineId(Long mineId);
+    List<GeologicalStabilityClassMine> findByMine_MineId(Long mineId);
 }

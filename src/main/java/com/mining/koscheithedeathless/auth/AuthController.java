@@ -42,7 +42,7 @@ public class AuthController {
             String role = userDetails.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
 
             User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-            Long mineId = user.getMine() != null ? user.getMine().getMine_id() : null;
+            Long mineId = user.getMine() != null ? user.getMine().getMineId() : null;
 
             String token = jwtService.generateToken(userDetails.getUsername(), role, mineId);
             return ResponseEntity.ok(new AuthResponse(token, role));

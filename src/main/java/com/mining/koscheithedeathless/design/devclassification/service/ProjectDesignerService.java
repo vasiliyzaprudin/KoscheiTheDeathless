@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,28 +20,26 @@ public class ProjectDesignerService {
     private final MineRepository mineRepository;
     private final GeologicalStabilityClassMineRepository classMineRepository;
     private final GeologicalStabilityClassRepository globalClassRepository;
-    private final ClassPropertyStabilityRepository classPropertyRepository; // Связь классов и свойств
+    private final ClassPropertyStabilityRepository classPropertyRepository;
     private final PropertyStabilityRepository propertyRepository;
-    private final RangeValuePropertyStabilityNameRepository valueRepository; // Глобальные значения
-    private final RangeValuePropertyStabilityNameMineRepository mineValueRepository; // Значения на руднике
+    private final RangeValuePropertyStabilityNameRepository valueRepository;
+    private final RangeValuePropertyStabilityNameMineRepository mineValueRepository;
 
-    // Получить все рудники для выбора
+    // === Рудники ===
     public List<Mine> getAllMines() {
         return mineRepository.findAll();
     }
 
-    // Получить настройки классов для конкретного рудника
+    // === Классы рудника ===
     public List<GeologicalStabilityClassMine> getClassesForMine(Long mineId) {
-        List<GeologicalStabilityClassMine> classes = classMineRepository.findByMineId(mineId);
-        return classes != null ? classes : new ArrayList<>(); // <-- Защита от null
+        List<GeologicalStabilityClassMine> classes = classMineRepository.findByMine_MineId(mineId);
+        return classes != null ? classes : new ArrayList<>();
     }
 
-    // Получить все глобальные классы (1b, 2b и т.д. для выпадающего списка)
     public List<GeologicalStabilityClass> getAllGlobalClasses() {
         return globalClassRepository.findAll();
     }
 
-    // Добавить класс на рудник
     @Transactional
     public void addClassToMine(Long mineId, Long globalClassId, String localCode) {
         Mine mine = mineRepository.findById(mineId).orElseThrow();
@@ -53,28 +52,53 @@ public class ProjectDesignerService {
 
         classMineRepository.save(newClassMine);
     }
-    // 1. Получить свойства, привязанные к конкретному классу (из таблицы class_property_stability)
+
+    public GeologicalStabilityClassMine getClassMineById(Long id) {
+        return classMineRepository.findById(id).orElseThrow();
+    }
+
+    @Transactional
+    public void deleteClassMine(Long classMineId) {
+        GeologicalStabilityClassMine classMine = classMineRepository.findById(classMineId)
+                .orElseThrow(() -> new RuntimeException("Класс не найден"));
+
+        // Сначала удаляем все значения свойств, привязанные к этому классу
+        List<RangeValuePropertyStabilityNameMine> values =
+                mineValueRepository.findByGeologicalStabilityClassMine_GeologicalStabilityClassMineId(classMineId);
+        if (!values.isEmpty()) {
+            mineValueRepository.deleteAll(values);
+        }
+
+        // Затем удаляем сам класс
+        classMineRepository.delete(classMine);
+    }
+
+    // === Свойства класса ===
+    /** Возвращает связи класса и свойств (с флагом isRequired). */
+    public List<ClassPropertyStability> getPropertyLinksForClass(Long globalClassId) {
+        return classPropertyRepository.findByGeologicalStabilityClass_GeologicalStabilityClassId(globalClassId);
+    }
+
+    // Для обратной совместимости (если где-то используется)
     public List<PropertyStability> getPropertiesForClass(Long globalClassId) {
-        List<ClassPropertyStability> links = classPropertyRepository.findAll();
-        return links.stream()
-                .filter(link -> link.getGeologicalStabilityClass().getGeologicalStabilityClassId().equals(globalClassId))
+        return getPropertyLinksForClass(globalClassId).stream()
                 .map(ClassPropertyStability::getPropertyStability)
                 .collect(Collectors.toList());
     }
 
-    // 2. Получить все возможные значения (диапазоны) для конкретного свойства
+    /** Все доступные диапазоны для свойства. */
     public List<RangeValuePropertyStabilityName> getValuesForProperty(Long propertyId) {
-        return valueRepository.findAll().stream()
-                .filter(v -> v.getPropertyStability().getPropertyStabilityId().equals(propertyId))
-                .collect(Collectors.toList());
+        return valueRepository.findByPropertyStability_PropertyStabilityId(propertyId);
     }
 
-    // 3. Получить уже сохраненные значения для класса на руднике
+    /** Уже сохранённые значения для класса рудника. */
     public List<RangeValuePropertyStabilityNameMine> getSavedValuesForClassMine(Long classMineId) {
-        return mineValueRepository.findByGeologicalStabilityClassMineGeologicalStabilityClassMineId(classMineId);
+        return mineValueRepository.findByGeologicalStabilityClassMine_GeologicalStabilityClassMineId(classMineId);
     }
 
-    // 4. Сохранить выбранные значения
+    /**
+     * Сохраняет выбранные значения. Если valueId == null — удаляет старую запись (очистка выбора).
+     */
     @Transactional
     public void saveValuesForClassMine(Long classMineId, List<Long> propertyIds, List<Long> valueIds) {
         GeologicalStabilityClassMine classMine = classMineRepository.findById(classMineId).orElseThrow();
@@ -83,20 +107,23 @@ public class ProjectDesignerService {
             Long propId = propertyIds.get(i);
             Long valId = valueIds.get(i);
 
-            if (valId == null) continue; // Пропускаем, если ничего не выбрано
+            Optional<RangeValuePropertyStabilityNameMine> existingOpt =
+                    mineValueRepository
+                            .findByGeologicalStabilityClassMine_GeologicalStabilityClassMineIdAndPropertyStability_PropertyStabilityId(
+                                    classMineId, propId);
+
+            if (valId == null) {
+                // Проектировщик очистил выбор — удаляем старую запись, если была
+                existingOpt.ifPresent(mineValueRepository::delete);
+                continue;
+            }
 
             PropertyStability property = propertyRepository.findById(propId).orElseThrow();
             RangeValuePropertyStabilityName value = valueRepository.findById(valId).orElseThrow();
 
-            // Проверяем, есть ли уже такая запись, если есть - обновляем, если нет - создаем
-            RangeValuePropertyStabilityNameMine existing = mineValueRepository.findAll().stream()
-                    .filter(v -> v.getGeologicalStabilityClassMine().getGeologicalStabilityClassMineId().equals(classMineId)
-                            && v.getPropertyStability().getPropertyStabilityId().equals(propId))
-                    .findFirst().orElse(null);
-
-            if (existing != null) {
-                existing.setValuePropertyStability(value);
-                mineValueRepository.save(existing);
+            if (existingOpt.isPresent()) {
+                existingOpt.get().setValuePropertyStability(value);
+                mineValueRepository.save(existingOpt.get());
             } else {
                 RangeValuePropertyStabilityNameMine newValue = new RangeValuePropertyStabilityNameMine();
                 newValue.setGeologicalStabilityClassMine(classMine);
@@ -105,16 +132,5 @@ public class ProjectDesignerService {
                 mineValueRepository.save(newValue);
             }
         }
-    }
-    public GeologicalStabilityClassMine getClassMineById(Long id) {
-        return classMineRepository.findById(id).orElseThrow();
-    }
-    @Transactional
-    public void deleteClassMine(Long classMineId) {
-        // Находим класс и удаляем его.
-        // Благодаря связям в БД, настройки свойств (range_value_property_stability_name_mines) удалятся автоматически.
-        GeologicalStabilityClassMine classMine = classMineRepository.findById(classMineId)
-                .orElseThrow(() -> new RuntimeException("Класс не найден"));
-        classMineRepository.delete(classMine);
     }
 }

@@ -8,9 +8,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
         th { background: #f4f4f4; }
-        .btn { display: inline-block; padding: 8px 16px; background: #2a7ae2;
-            color: #fff; text-decoration: none; border-radius: 4px; border: none;
-            cursor: pointer; font-size: 14px; }
+        .btn { display: inline-block; padding: 8px 16px; background: #2a7ae2; color: #fff; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; }
         .btn-sm { padding: 5px 10px; font-size: 12px; }
         .btn-warning { background: #f0ad4e; }
         .btn-success { background: #28a745; }
@@ -21,9 +19,7 @@
     </style>
 </head>
 <body>
-
 <h1>Управление рудниками</h1>
-
 <div id="error" class="error" style="display:none;"></div>
 
 <a class="btn" href="/admin/mines/creation.html">+ Создать рудник</a>
@@ -78,24 +74,24 @@
         for (const m of mines) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${m.mine_id}</td>
-                <td>${escapeHtml(m.mine_code)}</td>
-                <td>${escapeHtml(m.mine_name)}</td>
-                <td>${escapeHtml(m.mine_address || '')}</td>
+                <td>${m.mineId}</td>
+                <td>${escapeHtml(m.mineCode)}</td>
+                <td>${escapeHtml(m.mineName)}</td>
+                <td>${escapeHtml(m.mineAddress || '')}</td>
                 <td>
-                    <span class="${m.mine_enabled ? 'status-active' : 'status-blocked'}">
-                        ${m.mine_enabled ? 'Активен' : 'Заблокирован'}
+                    <span class="${m.mineEnabled ? 'status-active' : 'status-blocked'}">
+                        ${m.mineEnabled ? 'Активен' : 'Заблокирован'}
                     </span>
                 </td>
                 <td>
-                    <a class="btn btn-sm" href="/admin/mines/edit.html?id=${m.mine_id}">✏️ Ред.</a>
-                    <button class="btn btn-sm ${m.mine_enabled ? 'btn-warning' : 'btn-success'}"
-                            data-id="${m.mine_id}">
-                        ${m.mine_enabled ? '🔒 Блок.' : '🔓 Разблок.'}
+                    <a class="btn btn-sm" href="/admin/mines/edit.html?id=${m.mineId}">✏️ Ред.</a>
+                    <button class="btn btn-sm ${m.mineEnabled ? 'btn-warning' : 'btn-success'}"
+                            data-id="${m.mineId}">
+                        ${m.mineEnabled ? '🔒 Блок.' : '🔓 Разблок.'}
                     </button>
                 </td>
             `;
-            tr.querySelector('button').addEventListener('click', () => toggleStatus(m.mine_id, m.mine_enabled));
+            tr.querySelector('button').addEventListener('click', () => toggleStatus(m.mineId, m.mineEnabled));
             body.appendChild(tr);
         }
     }
@@ -104,6 +100,7 @@
         const action = currentlyEnabled ? 'заблокировать' : 'разблокировать';
         if (!confirm(`Вы уверены, что хотите ${action} этот рудник?`)) return;
         try {
+            // Если эндпоинта /toggle нет, используйте PUT с обновлением статуса
             await API.post(`${API_URL}/${id}/toggle`, {});
             await loadMines();
         } catch (e) {
@@ -119,6 +116,5 @@
 
     loadMines();
 </script>
-
 </body>
 </html>

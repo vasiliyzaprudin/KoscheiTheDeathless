@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Конструктор классификаций</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f6f9; color: #1f2d3d; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 280px; background: #fff; border-right: 1px solid #e2e8f0; padding: 20px; overflow-y: auto; }
+        .sidebar h2 { font-size: 16px; margin-bottom: 15px; color: #2a7ae2; }
+        .mine-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 6px; transition: background 0.15s; }
+        .mine-item:hover { background: #eef4fc; }
+        .mine-item.active { background: #2a7ae2; color: #fff; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 24px; margin-bottom: 20px; }
+        h1 { font-size: 22px; margin-bottom: 20px; }
+        h2 { font-size: 18px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        th { background: #f8fafc; font-weight: 600; }
+        .btn { display: inline-block; padding: 9px 16px; background: #2a7ae2; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; text-decoration: none; }
+        .btn:hover { background: #1e5cb3; }
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .form-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; }
+        .form-row label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 4px; }
+        .form-row input, .form-row select { padding: 9px 12px; border: 1px solid #d1d9e6; border-radius: 6px; font-size: 14px; }
+        .empty { color: #888; text-align: center; padding: 30px; }
+        .hidden { display: none; }
+        .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+        @media (max-width: 1100px) { .two-cols { grid-template-columns: 1fr; } }
+        .required-mark { color: #dc3545; font-weight: bold; margin-left: 4px; }
+        .field-error { color: #dc3545; font-size: 13px; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <!-- Левая панель: список рудников -->
+    <aside class="sidebar">
+        <h2>Рудники</h2>
+        <div id="mineList"><div class="empty">Загрузка...</div></div>
+    </aside>
+
+    <!-- Правая панель: конструктор -->
+    <main class="content">
+        <div id="placeholder" class="empty">Выберите рудник слева, чтобы начать настройку</div>
+
+        <!-- Блок классов и свойств -->
+        <div id="workBlock" class="hidden">
+            <h1>Классы рудника: <span id="currentMineName"></span></h1>
+
+            <div class="two-cols">
+                <!-- ЛЕВАЯ КОЛОНКА: добавление и список классов -->
+                <div>
+                    <div class="card">
+                        <h2>Добавить класс</h2>
+                        <div class="form-row">
+                            <div>
+                                <label>Глобальный класс</label>
+                                <select id="globalClassSelect"></select>
+                            </div>
+                            <div>
+                                <label>Локальный код</label>
+                                <input type="text" id="localCodeInput" placeholder="Например, 1">
+                            </div>
+                            <button class="btn" onclick="addClass()">Добавить</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Добавленные классы</h2>
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Локальный код</th>
+                                <th>Глобальный класс</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody id="classesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ПРАВАЯ КОЛОНКА: свойства выбранного класса -->
+                <div id="propertiesBlock" class="hidden">
+                    <div class="card">
+                        <h2>Свойства класса: <span id="currentClassCode"></span></h2>
+                        <h3 style="color:#666; font-weight:normal; margin-bottom:15px;">
+                            Глобальный класс: <span id="currentGlobalClassCode"></span>
+                        </h3>
+                        <form id="propertiesForm">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Свойство</th>
+                                    <th>Ед. изм.</th>
+                                    <th>Значение (диапазон)</th>
+                                </tr>
+                                </thead>
+                                <tbody id="propertiesBody"></tbody>
+                            </table>
+                            <div id="formError" class="field-error"></div>
+                            <div style="margin-top: 20px;">
+                                <button type="submit" class="btn">Сохранить</button>
+                                <button type="button" class="btn btn-secondary" onclick="closeProperties()">Закрыть</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="/shared/js/api.js"></script>
+<script>
+    const API_DESIGNER = '/api/designer';
+    let currentMineId = null;
+    let currentClassMineId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadMines();
+        await loadGlobalClasses();
+    });
+
+    // === Рудники ===
+    async function loadMines() {
+        try {
+            const mines = await API.get(`${API_DESIGNER}/mines`);
+            const list = document.getElementById('mineList');
+            if (!mines.length) { list.innerHTML = '<div class="empty">Нет рудников</div>'; return; }
+            list.innerHTML = '';
+            mines.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'mine-item';
+                div.textContent = m.mineName;
+                div.dataset.id = m.mineId;
+                div.onclick = () => selectMine(m.mineId, m.mineName, div);
+                list.appendChild(div);
+            });
+        } catch (e) {
+            document.getElementById('mineList').innerHTML = `<div class="empty" style="color:#c00;">Ошибка: ${e.message}</div>`;
+        }
+    }
+
+    async function loadGlobalClasses() {
+        try {
+            const classes = await API.get(`${API_DESIGNER}/global-classes`);
+            const select = document.getElementById('globalClassSelect');
+            select.innerHTML = '';
+            classes.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.geologicalStabilityClassId;
+                opt.textContent = c.geologicalStabilityClassCode;
+                select.appendChild(opt);
+            });
+        } catch (e) { console.error(e); }
+    }
+
+    function selectMine(mineId, mineName, el) {
+        document.querySelectorAll('.mine-item').forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        currentMineId = mineId;
+        document.getElementById('currentMineName').textContent = mineName;
+        document.getElementById('placeholder').classList.add('hidden');
+        document.getElementById('workBlock').classList.remove('hidden');
+        document.getElementById('propertiesBlock').classList.add('hidden');
+        loadClasses(mineId);
+    }
+
+    // === Классы ===
+    async function loadClasses(mineId) {
+        try {
+            const classes = await API.get(`${API_DESIGNER}/mines/${mineId}/classes`);
+            const tbody = document.getElementById('classesBody');
+            if (!classes.length) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty">Классы не добавлены</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            classes.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${c.geologicalStabilityClassMineCode}</td>
+                    <td>${c.globalClassCode}</td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn btn-sm" onclick="openProperties(${c.geologicalStabilityClassMineId})">Настроить</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteClass(${c.geologicalStabilityClassMineId})">Удалить</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            document.getElementById('classesBody').innerHTML = `<tr><td colspan="3" style="color:#c00;">Ошибка: ${e.message}</td></tr>`;
+        }
+    }
+
+    async function addClass() {
+        const globalClassId = document.getElementById('globalClassSelect').value;
+        const localCode = document.getElementById('localCodeInput').value.trim();
+        if (!localCode) { alert('Введите локальный код'); return; }
+        try {
+            await API.post(`${API_DESIGNER}/mines/${currentMineId}/classes?globalClassId=${globalClassId}&localCode=${encodeURIComponent(localCode)}`, {});
+            document.getElementById('localCodeInput').value = '';
+            await loadClasses(currentMineId);
+            closeProperties();
+        } catch (e) { alert('Ошибка: ' + e.message); }
+    }
+
+    async function deleteClass(classMineId) {
+        if (!confirm('Удалить класс? Все настроенные свойства тоже удалятся.')) return;
+        try {
+            await API.delete(`${API_DESIGNER}/classes/${classMineId}`);
+            await loadClasses(currentMineId);
+            if (currentClassMineId === classMineId) closeProperties();
+        } catch (e) { alert('Ошибка: ' + e.message); }
+    }
+
+    // === Свойства класса ===
+    async function openProperties(classMineId) {
+        currentClassMineId = classMineId;
+        document.getElementById('formError').style.display = 'none';
+
+        try {
+            const data = await API.get(`${API_DESIGNER}/classes/${classMineId}/properties`);
+            document.getElementById('propertiesBlock').classList.remove('hidden');
+            document.getElementById('currentClassCode').textContent = data.geologicalStabilityClassMineCode;
+            document.getElementById('currentGlobalClassCode').textContent = data.globalClassCode;
+
+            const tbody = document.getElementById('propertiesBody');
+            tbody.innerHTML = '';
+
+            // Карта сохранённых значений: propertyStabilityId -> valuePropertyStabilityId
+            const savedMap = {};
+            (data.savedValues || []).forEach(s => savedMap[s.propertyStabilityId] = s.valuePropertyStabilityId);
+
+            data.properties.forEach(prop => {
+                const values = data.availableValues[prop.propertyStabilityId] || [];
+                const options = values.map(v =>
+                    `<option value="${v.valuePropertyStabilityId}" ${savedMap[prop.propertyStabilityId] === v.valuePropertyStabilityId ? 'selected' : ''}>${v.rangeValuePropertyStabilityNameRu}</option>`
+                ).join('');
+
+                // Jackson сериализует isRequired как "required"
+                const requiredMark = prop.required ? '<span class="required-mark">*</span>' : '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${prop.propertyStabilityNameRu}${requiredMark}
+                        <input type="hidden" name="propertyIds" value="${prop.propertyStabilityId}">
+                        <input type="hidden" name="isRequired" value="${prop.required}">
+                    </td>
+                    <td>${prop.unit || '-'}</td>
+                    <td>
+                        <select name="valueIds" style="width:100%; padding:6px;">
+                            <option value="">— Не выбрано —</option>
+                            ${options}
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('propertiesBlock').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (e) {
+            alert('Ошибка загрузки свойств: ' + e.message);
+        }
+    }
+
+    function closeProperties() {
+        document.getElementById('propertiesBlock').classList.add('hidden');
+        document.getElementById('formError').style.display = 'none';
+        currentClassMineId = null;
+    }
+
+    document.getElementById('propertiesForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentClassMineId) return;
+
+        const formError = document.getElementById('formError');
+        formError.style.display = 'none';
+
+        const propertyIds = Array.from(document.querySelectorAll('input[name="propertyIds"]')).map(i => Number(i.value));
+        const isRequiredFlags = Array.from(document.querySelectorAll('input[name="isRequired"]')).map(i => i.value === 'true');
+        const valueIds = Array.from(document.querySelectorAll('select[name="valueIds"]')).map(s => s.value ? Number(s.value) : null);
+
+        // Валидация обязательных свойств
+        const missing = [];
+        for (let i = 0; i < isRequiredFlags.length; i++) {
+            if (isRequiredFlags[i] && valueIds[i] === null) {
+                missing.push(i);
+            }
+        }
+        if (missing.length > 0) {
+            formError.textContent = 'Заполните обязательные свойства (отмечены *).';
+            formError.style.display = 'block';
+            // Подсветить незаполненные select
+            const selects = document.querySelectorAll('select[name="valueIds"]');
+            missing.forEach(idx => {
+                selects[idx].style.border = '1px solid #dc3545';
+                selects[idx].onchange = () => { selects[idx].style.border = ''; };
+            });
+            return;
+        }
+
+        try {
+            await API.post(`${API_DESIGNER}/classes/${currentClassMineId}/properties`, { propertyIds, valueIds });
+            alert('Сохранено!');
+            await loadClasses(currentMineId);
+        } catch (e) {
+            formError.textContent = 'Ошибка сохранения: ' + e.message;
+            formError.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>
