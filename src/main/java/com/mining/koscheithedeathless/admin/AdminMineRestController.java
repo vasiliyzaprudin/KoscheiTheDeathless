@@ -51,7 +51,7 @@ public class AdminMineRestController {
     }
 
     @PutMapping("/{mine_id}")
-    public ResponseEntity<?> updateMine(@PathVariable Long mineId,
+    public ResponseEntity<?> updateMine(@PathVariable("mine_id") Long mineId,
                                         @Valid @RequestBody MineRequest request,
                                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -67,7 +67,7 @@ public class AdminMineRestController {
     }
 
     @PostMapping("/{mine_id}/toggle")
-    public ResponseEntity<?> toggleStatus(@PathVariable Long mineId) {
+    public ResponseEntity<?> toggleStatus(@PathVariable("mine_id") Long mineId) {
         try {
             mineService.toggleMineStatus(mineId);
             Mine mine = mineService.getMineById(mineId);

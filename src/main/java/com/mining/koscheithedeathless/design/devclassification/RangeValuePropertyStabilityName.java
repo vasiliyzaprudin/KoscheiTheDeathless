@@ -7,7 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "range_value_property_stability_name")
+@Table(
+        name = "range_value_property_stability_name",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_range_value",
+                        columnNames = {"property_stability_id", "range_value_property_stability_name"}
+                )
+        }
+)
 public class RangeValuePropertyStabilityName {
     // Справочник значений свойств устойчивости горного массива
     //(range_value_property_stability_name)

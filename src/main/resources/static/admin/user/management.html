@@ -157,7 +157,7 @@
 
             const mines = await API.get('/api/admin/mines');
             const mineSelect = document.getElementById('mineId');
-            mines.forEach(m => mineSelect.insertAdjacentHTML('beforeend', `<option value="${m.mine_id}">${m.mine_name}</option>`));
+            mines.forEach(m => mineSelect.insertAdjacentHTML('beforeend', `<option value="${m.mineId}">${m.mineName}</option>`));
         } catch (e) {
             showMsg('Ошибка загрузки справочников: ' + e.message, true);
         }
