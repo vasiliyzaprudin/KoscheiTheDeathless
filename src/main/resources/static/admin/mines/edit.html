@@ -61,7 +61,7 @@
 
     async function loadMine(id) {
         try {
-            const mine = await API.get(`${API_URL}/${id}`);
+            const mine = await API.get(`${API_URL}/${mineId}`);
             document.getElementById('mineCode').value = mine.mineCode;
             document.getElementById('mineName').value = mine.mineName;
             document.getElementById('mineAddress').value = mine.mineAddress || '';
